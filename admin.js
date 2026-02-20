@@ -30,11 +30,12 @@ function clampInt(v, def = 0) {
   const n = parseInt(String(v).replace(/[^\d-]/g, ""), 10);
   return Number.isFinite(n) ? n : def;
 }
+
 function slugifyCategory(input) {
   return String(input || "")
     .trim()
     .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")   // quita acentos
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 }
@@ -61,19 +62,22 @@ let sessionUser = null;
 let isAdmin = false;
 
 let editingProductId = null;
-let currentImageFile = null; // file listo para subir
+let currentImageFile = null;
 let currentImageUrl = null;
 let currentImagePath = null;
 
 let colors = [];
 let sizes = []; // [{label, extra_price, id?}]
-let categories = [];            // [{id,slug,name,is_active,sort_order}]
-let catNameBySlug = new Map();  // slug->name
+
+// Categories
+let categories = [];
+let catNameBySlug = new Map();
 
 function prettyCategory(slug) {
   const key = String(slug || "").toLowerCase();
   return catNameBySlug.get(key) || (key ? (key[0].toUpperCase() + key.slice(1)) : "Accesorios");
 }
+
 function resetEditor() {
   editingProductId = null;
 
@@ -108,7 +112,6 @@ function setPreview(urlOrNull) {
     img.src = urlOrNull;
     img.style.opacity = "1";
   } else {
-    // placeholder liviano (sin dark)
     img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
       `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="675">
         <rect width="100%" height="100%" fill="#f8fafc"/>
@@ -162,7 +165,6 @@ function makeImagePath(productId, file) {
  * - convierte a WebP (q≈0.75)
  * - max ancho 1200px
  * - intenta < 300KB bajando calidad si es necesario
- * Si falla, devuelve el archivo original y un warning.
  */
 async function compressToWebPIfPossible(file) {
   const MAX_W = 1200;
@@ -170,11 +172,9 @@ async function compressToWebPIfPossible(file) {
   const START_Q = 0.75;
   const MIN_Q = 0.55;
 
-  // Tipos permitidos
   const okType = ["image/jpeg","image/png","image/webp"].includes(file.type);
   if (!okType) return { file, warning: "Formato no permitido." };
 
-  // Si ya es webp y es pequeño, lo dejamos
   if (file.type === "image/webp" && file.size <= TARGET) return { file, warning: null };
 
   try {
@@ -238,7 +238,6 @@ async function uploadImageIfNeeded(productId) {
     return { image_url: currentImageUrl, image_path: currentImagePath };
   }
 
-  // optionally delete previous image when replacing (best-effort)
   if (currentImagePath) {
     await deleteImageIfExists(currentImagePath);
   }
@@ -262,12 +261,13 @@ async function uploadImageIfNeeded(productId) {
 async function deleteImageIfExists(path) {
   try {
     const { error } = await supabase.storage.from("product-images").remove([path]);
-    // ignorar si falla
     if (error) console.warn("deleteImage error:", error);
   } catch (e) {
     console.warn("deleteImage exception:", e);
   }
 }
+
+/** Categories (admin UI) */
 async function fetchCategories() {
   const { data, error } = await supabase
     .from("categories")
@@ -289,7 +289,6 @@ function renderCategorySelect(keepValue = "") {
   const prev = keepValue || sel.value || "";
   sel.innerHTML = "";
 
-  // Solo activas para seleccionar (admin)
   const active = categories.filter(c => c.is_active !== false);
 
   if (!active.length) {
@@ -308,7 +307,6 @@ function renderCategorySelect(keepValue = "") {
     sel.appendChild(opt);
   }
 
-  // Si el producto tenía una categoría que no está en la tabla, la metemos para no perderla
   if (prev && !active.some(c => String(c.slug).toLowerCase() === String(prev).toLowerCase())) {
     const opt = document.createElement("option");
     opt.value = prev;
@@ -351,30 +349,17 @@ async function addCategoryFlow(rawName) {
   if (!name || !slug) return toast("Escribe una categoría válida.", "warn");
   if (slug.length < 2) return toast("Nombre muy corto.", "warn");
 
-  // Insert (si existe, buscamos y seleccionamos)
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("categories")
-    .insert({ slug, name, is_active: true, sort_order: 0 })
-    .select("id,slug,name,is_active,sort_order,created_at")
-    .maybeSingle();
+    .insert({ slug, name, is_active: true, sort_order: 0 });
 
   if (error) {
     const msg = String(error.message || "");
     const duplicate = msg.toLowerCase().includes("duplicate") || msg.toLowerCase().includes("unique");
     if (!duplicate) throw error;
 
-    // Ya existía: la leemos y la usamos
-    const { data: existing, error: e2 } = await supabase
-      .from("categories")
-      .select("id,slug,name,is_active,sort_order,created_at")
-      .eq("slug", slug)
-      .maybeSingle();
-
-    if (e2) throw e2;
-    if (!existing) return toast("Ya existe, pero no pude leerla.", "warn");
-
-    await refreshCategoriesUI(existing.slug);
-    $("categoryInput").value = existing.slug;
+    await refreshCategoriesUI(slug);
+    $("categoryInput").value = slug;
     return toast("Categoría ya existía ✅", "success");
   }
 
@@ -400,6 +385,7 @@ async function deleteCategoryFlow(id) {
   await refreshCategoriesUI($("categoryInput")?.value || "");
   toast("Categoría eliminada", "warn");
 }
+
 async function fetchAllProducts() {
   const { data: products, error: pErr } = await supabase
     .from("products")
@@ -449,7 +435,7 @@ function renderProductList(rows) {
       <div class="adminMeta">
         <p class="title">${escapeHtml(p.name || "Producto")}</p>
         <p class="sub">
-          <span class="badge category">${escapeHtml((p.category || "accesorios").toLowerCase())}</span>
+          <span class="badge category">${escapeHtml(prettyCategory(p.category || "accesorios"))}</span>
           ${p.featured ? `<span class="badge featured">Destacado</span>` : ""}
           ${disc > 0 ? `<span class="badge discount">-${disc}%</span>` : ""}
           <span class="badge">Desde ${fmtCOP.format(final)}</span>
@@ -475,7 +461,11 @@ function loadIntoEditor(p) {
   $("editorTitle").textContent = "Editar producto";
 
   $("nameInput").value = p.name || "";
-  ${escapeHtml(prettyCategory(p.category))}
+
+  // Mantener slug en value (lo que guarda products.category)
+  // pero mostrar nombres bonitos ya lo maneja el <select> con categories
+  $("categoryInput").value = (p.category || "").trim().toLowerCase();
+
   $("descInput").value = p.desc || "";
   $("basePriceInput").value = String(p.base_price || 0);
   $("discountInput").value = String(p.discount_percent || 0);
@@ -517,7 +507,6 @@ async function saveProduct() {
   $("savingHint").textContent = "Guardando…";
 
   try {
-    // 1) upsert product (sin imagen aún)
     let productId = editingProductId;
 
     if (!productId) {
@@ -557,7 +546,6 @@ async function saveProduct() {
       if (error) throw error;
     }
 
-    // 2) upload image if needed, then update product with image_url/path
     const img = await uploadImageIfNeeded(productId);
 
     if (img?.image_url !== currentImageUrl || img?.image_path !== currentImagePath) {
@@ -572,7 +560,6 @@ async function saveProduct() {
       currentImagePath = img.image_path;
     }
 
-    // 3) sizes: delete old then insert new
     const { error: delErr } = await supabase
       .from("product_sizes")
       .delete()
@@ -613,7 +600,6 @@ async function deleteProductFlow(p) {
   if (!confirm(`¿Eliminar "${p.name}"? Esto borrará tallas e imagen.`)) return;
 
   try {
-    // delete image first (best effort)
     if (p.image_path) await deleteImageIfExists(p.image_path);
 
     const { error } = await supabase.from("products").delete().eq("id", p.id);
@@ -675,6 +661,7 @@ function wireEvents() {
       showLoggedIn(sessionUser.email);
       toast("Sesión iniciada ✅", "success");
 
+      await refreshCategoriesUI();
       await refreshListAndResetIfCreate(true);
     } catch (e) {
       toast(`Login error: ${e?.message || e}`, "error", 4500);
@@ -741,39 +728,40 @@ function wireEvents() {
     e.target.value = "";
     renderPills();
   });
+
   // Categorías: agregar
-$("addCategoryBtn")?.addEventListener("click", async () => {
-  try {
-    const v = $("categoryNewInput").value.trim();
-    $("categoryNewInput").value = "";
-    await addCategoryFlow(v);
-  } catch (e) {
-    toast(`Error agregando: ${e?.message || e}`, "error", 4500);
-  }
-});
+  $("addCategoryBtn")?.addEventListener("click", async () => {
+    try {
+      const v = $("categoryNewInput").value.trim();
+      $("categoryNewInput").value = "";
+      await addCategoryFlow(v);
+    } catch (e) {
+      toast(`Error agregando: ${e?.message || e}`, "error", 4500);
+    }
+  });
 
-$("categoryNewInput")?.addEventListener("keydown", async (e) => {
-  if (e.key !== "Enter") return;
-  e.preventDefault();
-  try {
-    const v = e.target.value.trim();
-    e.target.value = "";
-    await addCategoryFlow(v);
-  } catch (err) {
-    toast(`Error agregando: ${err?.message || err}`, "error", 4500);
-  }
-});
+  $("categoryNewInput")?.addEventListener("keydown", async (e) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    try {
+      const v = e.target.value.trim();
+      e.target.value = "";
+      await addCategoryFlow(v);
+    } catch (err) {
+      toast(`Error agregando: ${err?.message || err}`, "error", 4500);
+    }
+  });
 
-// Categorías: eliminar (delegación)
-$("categoryMiniList")?.addEventListener("click", async (e) => {
-  const btn = e.target.closest("[data-cat-del]");
-  if (!btn) return;
-  try {
-    await deleteCategoryFlow(btn.getAttribute("data-cat-del"));
-  } catch (err) {
-    toast(`Error eliminando: ${err?.message || err}`, "error", 4500);
-  }
-});
+  // Categorías: eliminar (delegación)
+  $("categoryMiniList")?.addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-cat-del]");
+    if (!btn) return;
+    try {
+      await deleteCategoryFlow(btn.getAttribute("data-cat-del"));
+    } catch (err) {
+      toast(`Error eliminando: ${err?.message || err}`, "error", 4500);
+    }
+  });
 
   // Image preview + compresión
   $("imageInput").addEventListener("change", async (e) => {
@@ -784,14 +772,12 @@ $("categoryMiniList")?.addEventListener("click", async (e) => {
       return;
     }
 
-    // preview inmediato (antes de compresión)
     const tmpUrl = URL.createObjectURL(file);
     setPreview(tmpUrl);
 
     const { file: out, warning } = await compressToWebPIfPossible(file);
     currentImageFile = out;
 
-    // preview del archivo final (si se comprimió)
     try {
       const finalUrl = URL.createObjectURL(out);
       setPreview(finalUrl);
@@ -806,7 +792,6 @@ $("categoryMiniList")?.addEventListener("click", async (e) => {
 async function bootstrap() {
   wireEvents();
 
-  // On load: session?
   const { data } = await supabase.auth.getSession();
   const sess = data?.session;
 
@@ -827,9 +812,8 @@ async function bootstrap() {
   toast("Sesión activa ✅", "success");
 
   try {
-    await refreshListAndResetIfCreate(true);
     await refreshCategoriesUI();
-await refreshListAndResetIfCreate(true);
+    await refreshListAndResetIfCreate(true);
   } catch (e) {
     toast(`Error cargando lista: ${e?.message || e}`, "error", 4500);
   }
@@ -878,7 +862,6 @@ function initPhotoBackgroundSlideshow(urls, intervalMs = 9000) {
   }, intervalMs);
 }
 
-// Placeholder (solo si USE_PHOTO_BG=true)
 const PHOTO_BG_URLS = [];
 
 document.addEventListener("DOMContentLoaded", bootstrap);
