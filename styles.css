@@ -816,3 +816,69 @@ body{
   top: 10px;
   margin-left: auto;
 }
+
+
+/* =========================================================
+   FIX ADMIN: preview de imagen pequeña y ordenada
+   ========================================================= */
+
+/* Intenta cubrir varios nombres comunes sin romper nada */
+.previewBox,
+#imagePreview,
+.adminPreview,
+.imagePreview,
+.preview,
+.previewWrap{
+  width: 100%;
+  max-width: 360px;          /* bonito en móvil */
+  margin: 8px 0;
+  border-radius: 18px;
+  border: 1px solid rgba(11,18,32,.10);
+  background: rgba(255,255,255,.92);
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(2,6,23,.08);
+
+  /* tamaño fijo para evitar gigantismo */
+  aspect-ratio: 4 / 3;
+}
+
+/* si tu preview está dentro del formulario y quieres más compacto */
+@media (max-width: 430px){
+  .previewBox,
+  #imagePreview,
+  .adminPreview,
+  .imagePreview,
+  .preview,
+  .previewWrap{
+    max-width: 100%;
+    aspect-ratio: 16 / 11;   /* un poco más panorámico */
+  }
+}
+
+/* La imagen SIEMPRE se ajusta sin deformarse */
+.previewBox img,
+#imagePreview img,
+.adminPreview img,
+.imagePreview img,
+.preview img,
+.previewWrap img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Si tienes placeholder o texto adentro */
+.previewBox .placeholder,
+#imagePreview .placeholder,
+.adminPreview .placeholder,
+.imagePreview .placeholder,
+.preview .placeholder,
+.previewWrap .placeholder{
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: rgba(11,18,32,.55);
+  font-weight: 900;
+}
