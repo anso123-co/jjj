@@ -715,7 +715,10 @@ function wireEvents() {
     renderCart();
   });
   $("cartCloseBtn").addEventListener("click", closeCart);
-  $("cartBackBtn")?.addEventListener("click", closeCart);
+  document.getElementById("cartBackBtn")?.addEventListener("click", () => {
+  // usa tu función existente para cerrar carrito:
+  closeCart();
+});
   $("drawerBackdrop").addEventListener("click", closeCart);
 
   $("clearCartBtn").addEventListener("click", () => {
