@@ -30,6 +30,7 @@ function clampInt(v, def = 0) {
   return Number.isFinite(n) ? n : def;
 }
 
+
 // ===== WhatsApp =====
 const WHATSAPP_NUMBER = "573116279267"; // 57 + 3116279267
 
@@ -70,7 +71,28 @@ function openWhatsAppChat() {
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
   window.open(url, "_blank", "noopener,noreferrer");
 }
+// ===== FAB Menu (+) =====
+function openFabMenu() {
+  const btn = $("navFab");
+  $("fabBackdrop").hidden = false;
+  $("fabMenu").hidden = false;
+  btn?.classList.add("isOpen");
+  btn?.setAttribute("aria-expanded", "true");
+}
 
+function closeFabMenu() {
+  const btn = $("navFab");
+  btn?.classList.remove("isOpen");
+  btn?.setAttribute("aria-expanded", "false");
+  if ($("fabBackdrop")) $("fabBackdrop").hidden = true;
+  if ($("fabMenu")) $("fabMenu").hidden = true;
+}
+
+function toggleFabMenu() {
+  const isOpen = $("fabMenu") && !$("fabMenu").hidden;
+  if (isOpen) closeFabMenu();
+  else openFabMenu();
+}
 // ===== Ir a tienda (como Inicio) =====
 function goToStoreHome() {
   // cierra overlays si están abiertos
