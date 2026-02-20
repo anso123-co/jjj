@@ -755,3 +755,22 @@ body{
   grid-template-columns: 44px 1fr 44px;
   align-items: center;
 }
+
+/* FIX buscador: que el botón no se salga */
+.searchPill{
+  overflow: hidden;
+}
+
+.searchInput{
+  min-width: 0; /* clave para que no empuje el botón */
+}
+
+.searchBtn{
+  flex: 0 0 auto;
+  height: 40px;
+  white-space: nowrap;
+  margin-left: 6px;
+}
+@media (max-width: 370px){
+  .searchBtn{ padding: 10px 10px; }
+}
