@@ -262,6 +262,65 @@ const state = {
   modalColor: null,
 };
 
+
+// ==========================
+// Paginación (UI) — 10 por página
+// ==========================
+const PAGE_SIZE = 10;
+let currentPage = 1;
+
+function totalPages() {
+  return Math.max(1, Math.ceil((filtered?.length || 0) / PAGE_SIZE));
+}
+
+function setPage(n) {
+  const pages = totalPages();
+  const v = Number.isFinite(n) ? n : 1;
+  currentPage = Math.max(1, Math.min(pages, v));
+}
+
+function resetPagination() {
+  currentPage = 1;
+}
+
+function renderPager() {
+  const pager = $("pager");
+  const nums = $("pagerNumbers");
+  const more = $("loadMoreBtn");
+  if (!pager || !nums || !more) return;
+
+  const total = filtered?.length || 0;
+  const pages = Math.ceil(total / PAGE_SIZE);
+
+  if (total <= PAGE_SIZE) {
+    pager.classList.add("hidden");
+    nums.innerHTML = "";
+    more.classList.add("hidden");
+    return;
+  }
+
+  pager.classList.remove("hidden");
+
+  nums.innerHTML = "";
+  for (let i = 1; i <= pages; i++) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "pagerNum" + (i === currentPage ? " isActive" : "");
+    b.textContent = String(i);
+    b.dataset.page = String(i);
+    b.setAttribute("aria-label", `Ir a la página ${i}`);
+    if (i === currentPage) b.setAttribute("aria-current", "page");
+    nums.appendChild(b);
+  }
+
+  const hasMore = currentPage < pages;
+  more.classList.toggle("hidden", !hasMore);
+  if (hasMore) {
+    const showing = Math.min(total, currentPage * PAGE_SIZE);
+    more.textContent = `Cargar más (${showing} / ${total})`;
+  }
+}
+
 async function fetchCatalog() {
   $("loadingBar")?.classList.remove("hidden");
   $("emptyState")?.classList.add("hidden");
@@ -363,6 +422,8 @@ function applyFiltersRender() {
   });
 
   filtered = items;
+
+  resetPagination();
   renderGrid();
 }
 
@@ -396,18 +457,20 @@ function renderGrid() {
   if (!grid) return;
 
   grid.innerHTML = "";
+  const visible = filtered.slice(0, currentPage * PAGE_SIZE);
   const count = $("resultCount");
-  if (count) count.textContent = `${filtered.length} producto(s)`;
+  if (count) count.textContent = `Mostrando ${visible.length} de ${filtered.length} producto${filtered.length === 1 ? "" : "s"}`;
 
   if (!filtered.length) {
     $("emptyState")?.classList.remove("hidden");
+    renderPager();
     return;
   }
   $("emptyState")?.classList.add("hidden");
 
   const frag = document.createDocumentFragment();
 
-  for (const p of filtered) {
+  for (const p of visible) {
     const minExtra = (p.sizes?.length ? Math.min(...p.sizes.map(s => s.extra_price || 0)) : 0);
     const { pre, final, disc } = calcFinalPrice(p.base_price || 0, minExtra, p.discount_percent || 0);
 
@@ -926,6 +989,26 @@ function wireEvents() {
     }
     if (e.key === "Tab") trapFocusIfOpen(e);
   });
+
+
+
+
+// Paginación (Cargar más + números)
+$("loadMoreBtn")?.addEventListener("click", () => {
+  const pages = totalPages();
+  if (currentPage < pages) {
+    currentPage += 1;
+    renderGrid();
+  }
+});
+
+$("pagerNumbers")?.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-page]");
+  if (!btn) return;
+  setPage(clampInt(btn.dataset.page, 1));
+  renderGrid();
+  $("productsGrid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
 
   setupLogoLongPress();
 }
