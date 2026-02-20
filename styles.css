@@ -139,7 +139,6 @@ body{
 /* SEARCH */
 .searchSection{ display:flex; flex-direction:column; gap: 12px; }
 .searchRow{ margin:0; }
-.appSearch{ }
 
 .searchPill{
   display:flex;
@@ -150,6 +149,9 @@ body{
   background: rgba(255,255,255,.90);
   box-shadow: var(--shadow2);
   padding: 10px 12px;
+
+  /* FIX: que el botón no se salga */
+  overflow:hidden;
 }
 .searchIcon{ opacity:.65; }
 .searchInput{
@@ -161,6 +163,9 @@ body{
   font-weight: 600;
   color: var(--text);
   min-height: 24px;
+
+  /* FIX: clave para que no empuje el botón */
+  min-width:0;
 }
 .searchBtn{
   border:0;
@@ -170,8 +175,17 @@ body{
   cursor:pointer;
   background: rgba(31,123,217,.10);
   color: var(--blue);
+
+  /* FIX */
+  flex: 0 0 auto;
+  height: 40px;
+  white-space: nowrap;
+  margin-left: 6px;
 }
 .searchBtn:focus-visible{ outline:none; box-shadow: var(--focus); }
+@media (max-width: 370px){
+  .searchBtn{ padding: 10px 10px; }
+}
 
 .metaBar{
   display:flex;
@@ -325,7 +339,7 @@ body{
   color: var(--blue);
 }
 
-/* Grid productos (2 col móvil como tu referencia) */
+/* Grid productos (2 col móvil) */
 .grid{
   margin-top: 12px;
   display:grid;
@@ -336,15 +350,23 @@ body{
   .gridApp{ grid-template-columns: 1fr 1fr 1fr; }
 }
 
-/* Cards (tu app.js ya renderiza .card, .cardMedia, etc) */
+/* =========================================================
+   FIX PRINCIPAL: cards SIEMPRE iguales + menos largas
+   ========================================================= */
 .card{
   border-radius: var(--r2);
   border: 1px solid rgba(11,18,32,.08);
   background: var(--card);
   box-shadow: var(--shadow2);
   overflow:hidden;
-  display:flex;
-  flex-direction:column;
+
+  /* Igualar altura: layout consistente */
+  display:grid;
+  grid-template-rows: auto 1fr;
+
+  /* Cards compactas */
+  min-height: 320px;        /* controla “desorden” por títulos largos */
+  max-width: 100%;
 
   content-visibility: auto;
   contain-intrinsic-size: 220px 360px;
@@ -354,22 +376,31 @@ body{
 @media (hover:hover){
   .card:hover{ transform: translateY(-3px); box-shadow: var(--shadow); }
 }
+
+/* Imagen fija */
 .cardMedia{
   aspect-ratio: 4/3;
   background: rgba(31,123,217,.08);
 }
 .cardMedia img{
-  width:100%; height:100%;
+  width:100%;
+  height:100%;
   object-fit: cover;
   display:block;
 }
+
+/* El cuerpo NO debe crecer distinto entre cards */
 .cardBody{
   padding: 12px;
   display:flex;
   flex-direction:column;
   gap: 10px;
+
+  /* clave para alinear botón al final sin estirar */
+  min-height: 0;
 }
 .cardBadges, .badges{ display:flex; flex-wrap:wrap; gap: 8px; }
+
 .badge{
   display:inline-flex;
   padding: 6px 10px;
@@ -395,14 +426,21 @@ body{
   color:#9a4e1c;
 }
 
+/* Título: CLAMP para que no desordene alturas */
 .cardTitle{
   margin:0;
   font-size: 16px;
   line-height: 1.15;
   font-weight: 900;
   letter-spacing: -.2px;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;      /* 3 líneas máximo */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
+/* Precio + acción alineados */
 .priceRow{
   display:flex;
   align-items:flex-end;
@@ -420,9 +458,14 @@ body{
   text-decoration: line-through;
   font-weight: 900;
 }
+
+/* Botón al fondo siempre (igualando cards) */
+.cardActions{
+  margin-top: auto;
+}
 .cardActions .btn{ width:100%; }
 
-/* Botones base (para modal y cards) */
+/* Botones base */
 .btn{
   min-height: var(--tap);
   border-radius: 14px;
@@ -545,6 +588,12 @@ body{
   align-items:flex-start;
   justify-content:space-between;
   gap: 10px;
+
+  /* FIX: X siempre visible */
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(255,255,255,.98);
 }
 .modalBody{
   padding: 12px;
@@ -595,6 +644,18 @@ body{
   align-items:center;
   justify-content:space-between;
 }
+
+/* Barra del carrito: flecha + X visibles y título centrado */
+.drawerHeaderBar{
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+}
+.drawerTitle{
+  text-align: center;
+}
+
 .drawerBody{
   padding: 12px;
   overflow:auto;
@@ -612,6 +673,16 @@ body{
   border: 1px solid rgba(11,18,32,.10);
   background: rgba(255,255,255,.92);
   padding: 10px 12px;
+}
+
+/* =========================================================
+   FIX: iconBtn visible en fondos claros (modal + carrito)
+   ========================================================= */
+.drawerHeader .iconBtn,
+.modalHeader .iconBtn{
+  color: rgba(11,18,32,.92) !important;
+  background: rgba(11,18,32,.05) !important;
+  border: 1px solid rgba(11,18,32,.10) !important;
 }
 
 /* Toasts */
@@ -646,7 +717,6 @@ body{
   *{ scroll-behavior:auto !important; }
   .card, .btn{ transition:none !important; }
 }
-
 
 /* =========================
    FIX CARRITO: imagen mini + orden
@@ -734,7 +804,7 @@ body{
   font-weight: 900;
 }
 
-/* X para quitar el producto (arriba a la derecha del item) */
+/* X para quitar el producto (si la agregas en el HTML) */
 #cartItems .itemRemoveX{
   position: absolute;
   top: 8px;
@@ -750,87 +820,13 @@ body{
 }
 #cartItems .itemRemoveX:active{ transform: translateY(1px); }
 
-.drawerHeaderApp{
-  display: grid;
-  grid-template-columns: 44px 1fr 44px;
-  align-items: center;
-}
-
-/* FIX buscador: que el botón no se salga */
-.searchPill{
-  overflow: hidden;
-}
-
-.searchInput{
-  min-width: 0; /* clave para que no empuje el botón */
-}
-
-.searchBtn{
-  flex: 0 0 auto;
-  height: 40px;
-  white-space: nowrap;
-  margin-left: 6px;
-}
-@media (max-width: 370px){
-  .searchBtn{ padding: 10px 10px; }
-}
-/* =========================================================
-   FIX: iconBtn visible en fondos claros (modal + carrito)
-   ========================================================= */
-
-/* Barra del carrito: flecha + X visibles y título centrado */
-.drawerHeaderBar{
-  display: grid;
-  grid-template-columns: 44px 1fr 44px;
-  align-items: center;
-  gap: 8px;
-}
-
-.drawerTitle{
-  text-align: center;
-}
-
-/* En headers blancos (carrito + modal) el iconBtn NO puede ser blanco */
-.drawerHeader .iconBtn,
-.modalHeader .iconBtn{
-  color: rgba(11,18,32,.92) !important;
-  background: rgba(11,18,32,.05) !important;
-  border: 1px solid rgba(11,18,32,.10) !important;
-}
-
-/* Para que la X del modal quede clavada arriba a la derecha y SIEMPRE visible */
-.modalHeader{
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: rgba(255,255,255,.98);
-}
-
-#modalCloseBtn{
-  position: relative;
-  z-index: 3;
-}
-/* X flotante estilo app, sobre el contenido */
-#modalCloseBtn{
-  position: sticky;
-  top: 10px;
-  margin-left: auto;
-}
-
-
 /* =========================================================
    FIX ADMIN: preview de imagen pequeña y ordenada
+   (tu preview usa id="imagePreview" en tu admin.js)
    ========================================================= */
-
-/* Intenta cubrir varios nombres comunes sin romper nada */
-.previewBox,
-#imagePreview,
-.adminPreview,
-.imagePreview,
-.preview,
-.previewWrap{
+#imagePreview{
   width: 100%;
-  max-width: 360px;          /* bonito en móvil */
+  max-width: 360px;       /* bonito en móvil */
   margin: 8px 0;
   border-radius: 18px;
   border: 1px solid rgba(11,18,32,.10);
@@ -840,48 +836,23 @@ body{
 
   /* tamaño fijo para evitar gigantismo */
   aspect-ratio: 4 / 3;
+  height: auto;
 }
 
-/* si tu preview está dentro del formulario y quieres más compacto */
+/* En pantallas chicas, un pelín más compacto */
 @media (max-width: 430px){
-  .previewBox,
-  #imagePreview,
-  .adminPreview,
-  .imagePreview,
-  .preview,
-  .previewWrap{
+  #imagePreview{
     max-width: 100%;
-    aspect-ratio: 16 / 11;   /* un poco más panorámico */
+    aspect-ratio: 16 / 11;
   }
 }
 
-/* La imagen SIEMPRE se ajusta sin deformarse */
-.previewBox img,
-#imagePreview img,
-.adminPreview img,
-.imagePreview img,
-.preview img,
-.previewWrap img{
-  width: 100%;
-  height: 100%;
+/* Como tu preview es <img id="imagePreview">, esto lo asegura */
+#imagePreview{
   object-fit: cover;
-  display: block;
+  display:block;
 }
 
-/* Si tienes placeholder o texto adentro */
-.previewBox .placeholder,
-#imagePreview .placeholder,
-.adminPreview .placeholder,
-.imagePreview .placeholder,
-.preview .placeholder,
-.previewWrap .placeholder{
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  color: rgba(11,18,32,.55);
-  font-weight: 900;
-}
 /* =========================
    Admin: categorías dinámicas
    ========================= */
@@ -917,5 +888,4 @@ body{
   display:grid;
   place-items:center;
 }
-
 .catMini .x:active{ transform: scale(.98); }
