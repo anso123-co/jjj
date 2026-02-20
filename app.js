@@ -241,6 +241,8 @@ function applyFiltersRender() {
       const c = (p.category || "").toLowerCase();
       const d = (p.desc || "").toLowerCase();
       return name.includes(q) || c.includes(q) || d.includes(q);
+      (p.category || "").toLowerCase().includes(q) ||
+prettyCategory(p.category).toLowerCase().includes(q)
     });
   }
 
