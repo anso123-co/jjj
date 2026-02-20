@@ -67,14 +67,20 @@ let currentImagePath = null;
 
 let colors = [];
 let sizes = []; // [{label, extra_price, id?}]
+let categories = [];            // [{id,slug,name,is_active,sort_order}]
+let catNameBySlug = new Map();  // slug->name
 
+function prettyCategory(slug) {
+  const key = String(slug || "").toLowerCase();
+  return catNameBySlug.get(key) || (key ? (key[0].toUpperCase() + key.slice(1)) : "Accesorios");
+}
 function resetEditor() {
   editingProductId = null;
 
   $("editorTitle").textContent = "Crear producto";
 
   $("nameInput").value = "";
-  $("categoryInput").value = "manillas";
+  $("categoryInput").value = (categories.find(c => c.is_active !== false)?.slug) || "";
   $("descInput").value = "";
   $("basePriceInput").value = "";
   $("discountInput").value = "0";
@@ -262,7 +268,138 @@ async function deleteImageIfExists(path) {
     console.warn("deleteImage exception:", e);
   }
 }
+async function fetchCategories() {
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id,slug,name,is_active,sort_order,created_at")
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
 
+  if (error) throw error;
+
+  categories = data || [];
+  catNameBySlug = new Map(categories.map(c => [String(c.slug || "").toLowerCase(), c.name]));
+  return categories;
+}
+
+function renderCategorySelect(keepValue = "") {
+  const sel = $("categoryInput");
+  if (!sel) return;
+
+  const prev = keepValue || sel.value || "";
+  sel.innerHTML = "";
+
+  // Solo activas para seleccionar (admin)
+  const active = categories.filter(c => c.is_active !== false);
+
+  if (!active.length) {
+    const opt = document.createElement("option");
+    opt.value = prev || "";
+    opt.textContent = prev ? prettyCategory(prev) : "Sin categorías (crea una)";
+    sel.appendChild(opt);
+    sel.value = prev || "";
+    return;
+  }
+
+  for (const c of active) {
+    const opt = document.createElement("option");
+    opt.value = c.slug;
+    opt.textContent = c.name;
+    sel.appendChild(opt);
+  }
+
+  // Si el producto tenía una categoría que no está en la tabla, la metemos para no perderla
+  if (prev && !active.some(c => String(c.slug).toLowerCase() === String(prev).toLowerCase())) {
+    const opt = document.createElement("option");
+    opt.value = prev;
+    opt.textContent = prettyCategory(prev) + " (custom)";
+    sel.prepend(opt);
+  }
+
+  sel.value = prev || active[0].slug;
+}
+
+function renderCategoryMiniList() {
+  const host = $("categoryMiniList");
+  if (!host) return;
+
+  const active = categories.filter(c => c.is_active !== false);
+  host.innerHTML = active.map(c => `
+    <span class="catMini" data-cat-id="${c.id}">
+      <span class="name">${escapeHtml(c.name)}</span>
+      <button class="x" type="button" data-cat-del="${c.id}" aria-label="Eliminar categoría">✕</button>
+    </span>
+  `).join("");
+}
+
+async function refreshCategoriesUI(keepValue = "") {
+  try {
+    await fetchCategories();
+    renderCategorySelect(keepValue);
+    renderCategoryMiniList();
+  } catch (e) {
+    toast(`Error categorías: ${e?.message || e}`, "error", 4500);
+  }
+}
+
+async function addCategoryFlow(rawName) {
+  if (!sessionUser || !isAdmin) return toast("Solo admin.", "error");
+
+  const name = titleCase(rawName);
+  const slug = slugifyCategory(name);
+
+  if (!name || !slug) return toast("Escribe una categoría válida.", "warn");
+  if (slug.length < 2) return toast("Nombre muy corto.", "warn");
+
+  // Insert (si existe, buscamos y seleccionamos)
+  const { data, error } = await supabase
+    .from("categories")
+    .insert({ slug, name, is_active: true, sort_order: 0 })
+    .select("id,slug,name,is_active,sort_order,created_at")
+    .maybeSingle();
+
+  if (error) {
+    const msg = String(error.message || "");
+    const duplicate = msg.toLowerCase().includes("duplicate") || msg.toLowerCase().includes("unique");
+    if (!duplicate) throw error;
+
+    // Ya existía: la leemos y la usamos
+    const { data: existing, error: e2 } = await supabase
+      .from("categories")
+      .select("id,slug,name,is_active,sort_order,created_at")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (e2) throw e2;
+    if (!existing) return toast("Ya existe, pero no pude leerla.", "warn");
+
+    await refreshCategoriesUI(existing.slug);
+    $("categoryInput").value = existing.slug;
+    return toast("Categoría ya existía ✅", "success");
+  }
+
+  await refreshCategoriesUI(slug);
+  $("categoryInput").value = slug;
+  toast("Categoría agregada ✅", "success");
+}
+
+async function deleteCategoryFlow(id) {
+  if (!sessionUser || !isAdmin) return toast("Solo admin.", "error");
+
+  const cat = categories.find(c => c.id === id);
+  const ok = confirm(`¿Eliminar categoría "${cat?.name || "?"}"?\n(Ojo: productos existentes seguirán con su texto de categoría.)`);
+  if (!ok) return;
+
+  const { error } = await supabase
+    .from("categories")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+
+  await refreshCategoriesUI($("categoryInput")?.value || "");
+  toast("Categoría eliminada", "warn");
+}
 async function fetchAllProducts() {
   const { data: products, error: pErr } = await supabase
     .from("products")
@@ -338,7 +475,7 @@ function loadIntoEditor(p) {
   $("editorTitle").textContent = "Editar producto";
 
   $("nameInput").value = p.name || "";
-  $("categoryInput").value = (p.category || "manillas").toLowerCase();
+  ${escapeHtml(prettyCategory(p.category))}
   $("descInput").value = p.desc || "";
   $("basePriceInput").value = String(p.base_price || 0);
   $("discountInput").value = String(p.discount_percent || 0);
@@ -604,6 +741,39 @@ function wireEvents() {
     e.target.value = "";
     renderPills();
   });
+  // Categorías: agregar
+$("addCategoryBtn")?.addEventListener("click", async () => {
+  try {
+    const v = $("categoryNewInput").value.trim();
+    $("categoryNewInput").value = "";
+    await addCategoryFlow(v);
+  } catch (e) {
+    toast(`Error agregando: ${e?.message || e}`, "error", 4500);
+  }
+});
+
+$("categoryNewInput")?.addEventListener("keydown", async (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  try {
+    const v = e.target.value.trim();
+    e.target.value = "";
+    await addCategoryFlow(v);
+  } catch (err) {
+    toast(`Error agregando: ${err?.message || err}`, "error", 4500);
+  }
+});
+
+// Categorías: eliminar (delegación)
+$("categoryMiniList")?.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-cat-del]");
+  if (!btn) return;
+  try {
+    await deleteCategoryFlow(btn.getAttribute("data-cat-del"));
+  } catch (err) {
+    toast(`Error eliminando: ${err?.message || err}`, "error", 4500);
+  }
+});
 
   // Image preview + compresión
   $("imageInput").addEventListener("change", async (e) => {
@@ -658,6 +828,8 @@ async function bootstrap() {
 
   try {
     await refreshListAndResetIfCreate(true);
+    await refreshCategoriesUI();
+await refreshListAndResetIfCreate(true);
   } catch (e) {
     toast(`Error cargando lista: ${e?.message || e}`, "error", 4500);
   }
