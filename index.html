@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f8fafc" />
+  <meta name="theme-color" content="#1f7bd9" />
   <title>Lumina — Tienda</title>
 
   <!-- Fuente moderna (no bloquea render) -->
@@ -15,49 +15,59 @@
 </head>
 
 <body class="page page-store">
-  <!-- Background (ligero, sin imágenes) -->
+  <!-- Fondo suave (solo gradientes, sin imágenes) -->
   <div class="aurora" aria-hidden="true"></div>
 
-  <header class="topbar">
-    <div class="topbarInner">
-      <button id="brandLogo" class="brand" type="button" aria-label="Lumina (mantén presionado para Admin)">
-        <span class="brandMark" aria-hidden="true">✦</span>
-        <span class="brandName">Lumina</span>
+  <!-- Topbar tipo app -->
+  <header class="topbar topbarApp">
+    <div class="topbarInner topbarAppInner">
+      <button id="brandLogo" class="brand brandCentered" type="button" aria-label="Lumina (mantén presionado para Admin)">
+        <span class="brandName brandSerif">LUMINA</span>
       </button>
 
-      <button id="cartOpenBtn" class="btn chip" type="button" aria-label="Abrir carrito">
-        <span aria-hidden="true">🛒</span>
-        <span class="chipText">Carrito</span>
-        <span id="cartCount" class="pill" aria-label="Cantidad en el carrito">0</span>
-      </button>
+      <div class="topbarActions" aria-label="Acciones">
+        <button id="cartOpenBtn" class="iconBtn" type="button" aria-label="Abrir carrito">
+          <span class="icon" aria-hidden="true">🛍️</span>
+          <span id="cartCount" class="countDot" aria-label="Cantidad en el carrito">0</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="container">
-    <section class="hero">
-      <h1 class="h1">Moda & accesorios, rápidos y bonitos.</h1>
-      <p class="sub">Catálogo ultra rápido, mobile-first, optimizado para Android gama media/baja.</p>
-
-      <form id="searchForm" class="searchRow" role="search" aria-label="Buscar productos">
-        <label class="srOnly" for="searchInput">Buscar</label>
-        <input
-          id="searchInput"
-          class="input"
-          type="search"
-          inputmode="search"
-          autocomplete="off"
-          placeholder="Busca por nombre, categoría o descripción…"
-          aria-label="Buscar productos"
-        />
-        <button class="btn primary" type="submit" aria-label="Buscar">Buscar</button>
+  <main class="container storeMain">
+    <!-- Buscador pill -->
+    <section class="searchSection">
+      <form id="searchForm" class="searchRow appSearch" role="search" aria-label="Buscar productos">
+        <div class="searchPill">
+          <span class="searchIcon" aria-hidden="true">🔎</span>
+          <label class="srOnly" for="searchInput">Buscar</label>
+          <input
+            id="searchInput"
+            class="searchInput"
+            type="search"
+            inputmode="search"
+            autocomplete="off"
+            placeholder="Buscar productos…"
+            aria-label="Buscar productos"
+          />
+          <button class="searchBtn" type="submit" aria-label="Buscar">Buscar</button>
+        </div>
       </form>
 
-      <div class="filters">
-        <button id="filtersToggleBtn" class="btn ghost block" type="button" aria-controls="filtersBody" aria-expanded="true">
-          Filtros y orden
+      <div class="metaBar">
+        <button id="filtersToggleBtn" class="pillBtn" type="button" aria-controls="filtersBody" aria-expanded="false">
+          ☰ Filtros
         </button>
 
-        <div id="filtersBody" class="filtersBody">
+        <div class="metaRight">
+          <div id="loadingBar" class="loading hidden" role="status" aria-live="polite">Cargando productos…</div>
+          <div id="resultCount" class="muted" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <!-- Panel filtros (se abre/cierra con tu app.js) -->
+      <div class="filtersCard">
+        <div id="filtersBody" class="filtersBody hidden">
           <div class="grid2">
             <div class="field">
               <label class="label" for="categorySelect">Categoría</label>
@@ -95,20 +105,62 @@
                 <input id="featuredOnly" type="checkbox" aria-label="Solo destacados" />
                 <span>Solo destacados</span>
               </label>
+
               <div class="spacer8"></div>
-              <button id="clearFiltersBtn" class="btn subtle block" type="button" aria-label="Limpiar filtros">Limpiar filtros</button>
+              <button id="clearFiltersBtn" class="btn subtle block" type="button" aria-label="Limpiar filtros">
+                Limpiar filtros
+              </button>
             </div>
           </div>
         </div>
       </div>
+    </section>
 
-      <div class="metaRow">
-        <div id="loadingBar" class="loading hidden" role="status" aria-live="polite">Cargando productos…</div>
-        <div id="resultCount" class="muted" aria-live="polite"></div>
+    <!-- Banners (sin imágenes de fondo; solo gradientes livianos) -->
+    <section class="promoGrid" aria-label="Promociones">
+      <article class="promo promoBig" role="button" tabindex="0" aria-label="Sección destacada">
+        <div class="promoText">
+          <div class="promoTag">Nuevos</div>
+          <h2 class="promoTitle">Moda & Accesorios</h2>
+          <p class="promoSub">Explora lo último · rápido y premium</p>
+        </div>
+        <div class="promoBlob" aria-hidden="true"></div>
+      </article>
+
+      <div class="promoRow">
+        <article class="promo promoSmall" role="button" tabindex="0" aria-label="Ofertas">
+          <div class="promoText">
+            <div class="promoTag">Oferta</div>
+            <h3 class="promoTitleSm">Descuentos</h3>
+            <p class="promoSubSm">Hasta -30%*</p>
+          </div>
+          <div class="promoBlob2" aria-hidden="true"></div>
+        </article>
+
+        <article class="promo promoSmall promoAlt" role="button" tabindex="0" aria-label="Destacados">
+          <div class="promoText">
+            <div class="promoTag">Top</div>
+            <h3 class="promoTitleSm">Destacados</h3>
+            <p class="promoSubSm">Lo más pedido</p>
+          </div>
+          <div class="promoBlob3" aria-hidden="true"></div>
+        </article>
       </div>
     </section>
 
-    <section class="catalog">
+    <!-- Chips tipo app (conectadas a categorySelect sin tocar tu app.js) -->
+    <section class="chipsWrap" aria-label="Categorías rápidas">
+      <div class="chips" role="tablist" aria-label="Categorías">
+        <button class="chip isActive" type="button" data-cat="" role="tab" aria-selected="true">Todo</button>
+        <button class="chip" type="button" data-cat="manillas" role="tab">Manillas</button>
+        <button class="chip" type="button" data-cat="pulseras" role="tab">Pulseras</button>
+        <button class="chip" type="button" data-cat="anillos" role="tab">Anillos</button>
+        <button class="chip" type="button" data-cat="collares" role="tab">Collares</button>
+      </div>
+    </section>
+
+    <!-- Catálogo -->
+    <section class="catalog" aria-label="Catálogo">
       <div id="emptyState" class="empty hidden" role="status" aria-live="polite">
         <div class="emptyCard">
           <h2 class="h2">No hay resultados</h2>
@@ -116,9 +168,32 @@
         </div>
       </div>
 
-      <div id="productsGrid" class="grid" aria-label="Listado de productos"></div>
+      <div id="productsGrid" class="grid gridApp" aria-label="Listado de productos"></div>
     </section>
   </main>
+
+  <!-- Bottom nav tipo app (visual) -->
+  <nav class="bottomNav" aria-label="Navegación inferior">
+    <button class="navBtn isOn" type="button" aria-label="Inicio">
+      <span aria-hidden="true">🏠</span><small>Inicio</small>
+    </button>
+
+    <button class="navBtn" type="button" aria-label="WhatsApp">
+      <span aria-hidden="true">💬</span><small>WhatsApp</small>
+    </button>
+
+    <button class="fab" type="button" aria-label="Acción">
+      <span aria-hidden="true">＋</span>
+    </button>
+
+    <button class="navBtn" type="button" aria-label="Favoritos">
+      <span aria-hidden="true">❤</span><small>Favoritos</small>
+    </button>
+
+    <button class="navBtn" type="button" aria-label="Buscar" data-focus-search>
+      <span aria-hidden="true">🔎</span><small>Buscar</small>
+    </button>
+  </nav>
 
   <!-- Backdrop -->
   <div id="modalBackdrop" class="backdrop" aria-hidden="true" hidden></div>
@@ -131,7 +206,7 @@
           <div id="modalBadges" class="badges" aria-label="Etiquetas del producto"></div>
           <h2 id="modalTitle" class="h2" style="margin:6px 0 0;">Producto</h2>
         </div>
-        <button id="modalCloseBtn" class="btn icon" type="button" aria-label="Cerrar modal">✕</button>
+        <button id="modalCloseBtn" class="iconBtn" type="button" aria-label="Cerrar modal">✕</button>
       </div>
 
       <div class="modalBody">
@@ -177,7 +252,7 @@
   <aside id="cartDrawer" class="drawer" aria-hidden="true" hidden>
     <div class="drawerHeader">
       <h2 class="h2" style="margin:0;">Carrito</h2>
-      <button id="cartCloseBtn" class="btn icon" type="button" aria-label="Cerrar carrito">✕</button>
+      <button id="cartCloseBtn" class="iconBtn" type="button" aria-label="Cerrar carrito">✕</button>
     </div>
 
     <div id="cartItems" class="drawerBody" aria-label="Productos en el carrito"></div>
@@ -209,6 +284,35 @@
 
   <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
 
+  <!-- Chips + focus search (sin tocar tu app.js) -->
+  <script type="module">
+    const qs = (s, r=document) => r.querySelector(s);
+    const qsa = (s, r=document) => [...r.querySelectorAll(s)];
+
+    const categorySelect = qs("#categorySelect");
+    const chips = qsa(".chip");
+    const searchInput = qs("#searchInput");
+
+    function setChipActive(btn){
+      chips.forEach(c => c.classList.toggle("isActive", c === btn));
+      chips.forEach(c => c.setAttribute("aria-selected", String(c === btn)));
+    }
+
+    chips.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const v = btn.dataset.cat ?? "";
+        if (categorySelect) {
+          categorySelect.value = v;
+          categorySelect.dispatchEvent(new Event("change", { bubbles:true }));
+        }
+        setChipActive(btn);
+      });
+    });
+
+    const focusBtn = qs("[data-focus-search]");
+    focusBtn?.addEventListener("click", () => searchInput?.focus());
+  </script>
+
   <script type="module" src="./app.js"></script>
 </body>
-</html>
+  </html>
