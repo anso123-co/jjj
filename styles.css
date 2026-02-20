@@ -774,3 +774,45 @@ body{
 @media (max-width: 370px){
   .searchBtn{ padding: 10px 10px; }
 }
+/* =========================================================
+   FIX: iconBtn visible en fondos claros (modal + carrito)
+   ========================================================= */
+
+/* Barra del carrito: flecha + X visibles y título centrado */
+.drawerHeaderBar{
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawerTitle{
+  text-align: center;
+}
+
+/* En headers blancos (carrito + modal) el iconBtn NO puede ser blanco */
+.drawerHeader .iconBtn,
+.modalHeader .iconBtn{
+  color: rgba(11,18,32,.92) !important;
+  background: rgba(11,18,32,.05) !important;
+  border: 1px solid rgba(11,18,32,.10) !important;
+}
+
+/* Para que la X del modal quede clavada arriba a la derecha y SIEMPRE visible */
+.modalHeader{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(255,255,255,.98);
+}
+
+#modalCloseBtn{
+  position: relative;
+  z-index: 3;
+}
+/* X flotante estilo app, sobre el contenido */
+#modalCloseBtn{
+  position: sticky;
+  top: 10px;
+  margin-left: auto;
+}
