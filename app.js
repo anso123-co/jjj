@@ -867,6 +867,54 @@ function wireEvents() {
     renderCart();
   });
 
+  // ===== Bottom Nav =====
+  $("navHome")?.addEventListener("click", goToStoreHome);
+
+  $("navStore")?.addEventListener("click", () => {
+    // mismo comportamiento que Inicio/tienda
+    goToStoreHome();
+  });
+
+  $("navWhatsApp")?.addEventListener("click", () => {
+    closeFabMenu();
+    openWhatsAppChat();
+  });
+
+  $("navSearch")?.addEventListener("click", () => {
+    closeFabMenu();
+    $("searchInput")?.focus();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // FAB +
+  $("navFab")?.addEventListener("click", () => toggleFabMenu());
+  $("fabBackdrop")?.addEventListener("click", closeFabMenu);
+
+  $("fabCart")?.addEventListener("click", () => {
+    closeFabMenu();
+    openCart();
+    renderCart();
+  });
+
+  $("fabFilters")?.addEventListener("click", () => {
+    closeFabMenu();
+    // abre el panel de filtros (tu lógica ya existe)
+    const toggleBtn = $("filtersToggleBtn");
+    const body = $("filtersBody");
+    if (toggleBtn && body && body.classList.contains("hidden")) toggleBtn.click();
+    $("categorySelect")?.focus();
+  });
+
+  $("fabClear")?.addEventListener("click", () => {
+    closeFabMenu();
+    $("clearFiltersBtn")?.click();
+  });
+
+  $("fabWA")?.addEventListener("click", () => {
+    closeFabMenu();
+    openWhatsAppChat();
+  });
+
   // ESC + focus trap
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
