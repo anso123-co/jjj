@@ -889,3 +889,87 @@ body{
   place-items:center;
 }
 .catMini .x:active{ transform: scale(.98); }
+/* =========================================================
+   FIX ADMIN LIST: imágenes gigantes en la lista de productos
+   Pega esto al FINAL del styles.css
+   ========================================================= */
+
+/* Contenedor general del item (por si no existe) */
+.adminItem{
+  display: grid;
+  grid-template-columns: 92px 1fr auto; /* thumb | texto | acciones */
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(11,18,32,.10);
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 6px 18px rgba(2,6,23,.08);
+  overflow: hidden; /* evita que algo se salga */
+}
+
+/* El thumb SIEMPRE con tamaño fijo */
+.adminThumb{
+  width: 92px;
+  height: 92px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(11,18,32,.10);
+  background: rgba(31,123,217,.08);
+  flex: none;
+}
+
+/* La imagen NO puede crecer: se recorta bonito */
+.adminThumb img{
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* Texto no debe romper layout */
+.adminMeta{ min-width: 0; }
+.adminMeta .title{
+  margin: 0;
+  font-weight: 900;
+  line-height: 1.15;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.adminMeta .sub{
+  margin: 6px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Acciones compactas */
+.adminActions{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.adminActions .btn{
+  min-height: 40px;
+  padding: 10px 12px;
+}
+
+/* En móvil que no se descuadre */
+@media (max-width: 420px){
+  .adminItem{
+    grid-template-columns: 78px 1fr;
+    grid-template-rows: auto auto;
+    align-items: start;
+  }
+  .adminActions{
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+  .adminThumb{
+    width: 78px;
+    height: 78px;
+    border-radius: 16px;
+  }
+}
