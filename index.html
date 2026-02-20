@@ -169,41 +169,50 @@
       </div>
 
       <div id="productsGrid" class="grid gridApp" aria-label="Listado de productos"></div>
+
+      <!-- ✅ PAGINACIÓN / CARGAR MÁS -->
+      <div id="pager" class="pager" aria-label="Paginación">
+        <div class="pagerTop">
+          <div id="pagerInfo" class="muted tiny">—</div>
+          <button id="loadMoreBtn" class="btn primary" type="button">Cargar más</button>
+        </div>
+        <div id="pagesBar" class="pagesBar" role="navigation" aria-label="Páginas"></div>
+      </div>
     </section>
   </main>
 
   <nav class="bottomNav" aria-label="Navegación inferior">
-  <button id="navHome" class="navBtn" type="button" aria-label="Inicio">
-    <span class="icon">🏠</span><span class="txt">Inicio</span>
-  </button>
+    <button id="navHome" class="navBtn" type="button" aria-label="Inicio">
+      <span class="icon">🏠</span><span class="txt">Inicio</span>
+    </button>
 
-  <button id="navWhatsApp" class="navBtn" type="button" aria-label="WhatsApp">
-    <span class="icon">💬</span><span class="txt">WhatsApp</span>
-  </button>
+    <button id="navWhatsApp" class="navBtn" type="button" aria-label="WhatsApp">
+      <span class="icon">💬</span><span class="txt">WhatsApp</span>
+    </button>
 
-  <button id="navFab" class="navFab" type="button" aria-label="Abrir menú" aria-expanded="false">
-    <span class="fabPlus">＋</span>
-  </button>
+    <button id="navFab" class="navFab" type="button" aria-label="Abrir menú" aria-expanded="false">
+      <span class="fabPlus">＋</span>
+    </button>
 
-  <!-- antes era Favoritos -->
-  <button id="navStore" class="navBtn" type="button" aria-label="Tienda">
-    <span class="icon">🛍️</span><span class="txt">Tienda</span>
-  </button>
+    <button id="navStore" class="navBtn" type="button" aria-label="Tienda">
+      <span class="icon">🛍️</span><span class="txt">Tienda</span>
+    </button>
 
-  <button id="navSearch" class="navBtn" type="button" aria-label="Buscar">
-    <span class="icon">🔎</span><span class="txt">Buscar</span>
-  </button>
-</nav>
+    <button id="navSearch" class="navBtn" type="button" aria-label="Buscar">
+      <span class="icon">🔎</span><span class="txt">Buscar</span>
+    </button>
+  </nav>
 
-<!-- Menú rápido del + -->
-<div id="fabBackdrop" class="fabBackdrop" hidden></div>
+  <!-- Menú rápido del + -->
+  <div id="fabBackdrop" class="fabBackdrop" hidden></div>
 
-<div id="fabMenu" class="fabMenu" hidden role="menu" aria-label="Accesos rápidos">
-  <button id="fabCart" class="fabItem" type="button" role="menuitem">🛒 Ver carrito</button>
-  <button id="fabFilters" class="fabItem" type="button" role="menuitem">🎛️ Filtros</button>
-  <button id="fabClear" class="fabItem" type="button" role="menuitem">🧹 Limpiar</button>
-  <button id="fabWA" class="fabItem wa" type="button" role="menuitem">📲 WhatsApp</button>
-</div>
+  <div id="fabMenu" class="fabMenu" hidden role="menu" aria-label="Accesos rápidos">
+    <button id="fabCart" class="fabItem" type="button" role="menuitem">🛒 Ver carrito</button>
+    <button id="fabFilters" class="fabItem" type="button" role="menuitem">🎛️ Filtros</button>
+    <button id="fabClear" class="fabItem" type="button" role="menuitem">🧹 Limpiar</button>
+    <button id="fabWA" class="fabItem wa" type="button" role="menuitem">📲 WhatsApp</button>
+  </div>
+
   <!-- Backdrop -->
   <div id="modalBackdrop" class="backdrop" aria-hidden="true" hidden></div>
 
@@ -260,10 +269,10 @@
   <!-- Cart drawer -->
   <aside id="cartDrawer" class="drawer" aria-hidden="true" hidden>
     <div class="drawerHeader drawerHeaderBar">
-  <button id="cartBackBtn" class="iconBtn" type="button" aria-label="Volver a la tienda">←</button>
-  <h2 class="h2 drawerTitle" style="margin:0;">Carrito</h2>
-  <button id="cartCloseBtn" class="iconBtn" type="button" aria-label="Cerrar carrito">✕</button>
-</div>
+      <button id="cartBackBtn" class="iconBtn" type="button" aria-label="Volver a la tienda">←</button>
+      <h2 class="h2 drawerTitle" style="margin:0;">Carrito</h2>
+      <button id="cartCloseBtn" class="iconBtn" type="button" aria-label="Cerrar carrito">✕</button>
+    </div>
 
     <div id="cartItems" class="drawerBody" aria-label="Productos en el carrito"></div>
 
@@ -325,4 +334,4 @@
 
   <script type="module" src="./app.js"></script>
 </body>
-  </html>
+</html>
