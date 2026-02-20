@@ -30,6 +30,20 @@ function clampInt(v, def = 0) {
   const n = parseInt(String(v).replace(/[^\d-]/g, ""), 10);
   return Number.isFinite(n) ? n : def;
 }
+function slugifyCategory(input) {
+  return String(input || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")   // quita acentos
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function titleCase(s) {
+  const t = String(s || "").trim().replace(/\s+/g, " ");
+  if (!t) return "";
+  return t.split(" ").map(w => w ? (w[0].toUpperCase() + w.slice(1).toLowerCase()) : "").join(" ");
+}
 
 async function getIsAdmin(userId) {
   const { data, error } = await supabase
