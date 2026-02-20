@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f8fafc" />
+  <title>Lumina — Admin</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body class="page page-admin">
+  <div class="aurora" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbarInner">
+      <a class="btn chip" href="./index.html" aria-label="Volver a la tienda">
+        <span aria-hidden="true">←</span>
+        <span class="chipText">Tienda</span>
+      </a>
+
+      <div class="row" style="gap:10px;">
+        <span id="adminEmail" class="muted tiny"></span>
+        <button id="logoutBtn" class="btn ghost" type="button" aria-label="Cerrar sesión" hidden>Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container adminLayout">
+    <!-- Login panel -->
+    <section id="loginPanel" class="panel">
+      <h1 class="h1" style="margin:0 0 6px;">Panel Admin</h1>
+      <p class="muted" style="margin:0 0 14px;">Inicia sesión con tu email y contraseña (Supabase Auth). Se validará <code>profiles.is_admin</code>.</p>
+
+      <div class="grid2">
+        <div class="field">
+          <label class="label" for="loginEmail">Email</label>
+          <input id="loginEmail" class="input" type="email" autocomplete="email" placeholder="admin@correo.com" />
+        </div>
+        <div class="field">
+          <label class="label" for="loginPass">Contraseña</label>
+          <input id="loginPass" class="input" type="password" autocomplete="current-password" placeholder="••••••••" />
+        </div>
+      </div>
+
+      <button id="loginBtn" class="btn primary block" type="button" aria-label="Iniciar sesión">Entrar</button>
+    </section>
+
+    <!-- Editor -->
+    <section id="editorPanel" class="panel hidden" aria-label="Editor de producto">
+      <div class="row between">
+        <h2 id="editorTitle" class="h2" style="margin:0;">Crear producto</h2>
+        <button id="refreshBtn" class="btn subtle" type="button" aria-label="Refrescar lista">Refrescar</button>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label class="label" for="nameInput">Nombre</label>
+          <input id="nameInput" class="input" placeholder="Ej: Pulsera Aura" />
+        </div>
+
+        <div class="field">
+          <label class="label" for="categoryInput">Categoría</label>
+          <select id="categoryInput" class="select" aria-label="Categoría">
+            <option value="manillas">Manillas</option>
+            <option value="pulseras">Pulseras</option>
+            <option value="anillos">Anillos</option>
+            <option value="collares">Collares</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="descInput">Descripción</label>
+        <textarea id="descInput" class="textarea" rows="3" placeholder="Descripción corta y atractiva…"></textarea>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label class="label" for="basePriceInput">Precio base (COP)</label>
+          <input id="basePriceInput" class="input" inputmode="numeric" placeholder="Ej: 45000" />
+        </div>
+
+        <div class="field">
+          <label class="label" for="discountInput">Descuento (%)</label>
+          <input id="discountInput" class="input" inputmode="numeric" placeholder="0–100" />
+          <label class="check" style="margin-top:10px;">
+            <input id="featuredInput" type="checkbox" />
+            <span>Destacado</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label class="label" for="colorAddInput">Colores (Enter para agregar)</label>
+          <input id="colorAddInput" class="input" placeholder="Ej: Dorado" />
+          <div id="colorsPills" class="pills" aria-label="Colores agregados"></div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="sizeAddInput">Tallas (Enter). Formato: “Etiqueta, Extra”</label>
+          <input id="sizeAddInput" class="input" placeholder="Ej: M, 5000" />
+          <div id="sizesPills" class="pills" aria-label="Tallas agregadas"></div>
+          <p class="hint">Si no agregas tallas, se creará automáticamente: Única, 0.</p>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label class="label" for="imageInput">Imagen (JPG/PNG/WEBP)</label>
+          <input id="imageInput" class="input" type="file" accept="image/*" />
+          <p id="previewHint" class="hint">Se intentará convertir a WebP (q≈0.75), ancho máx 1200px y objetivo &lt; 300KB.</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Vista previa</label>
+          <div class="previewBox">
+            <img id="imagePreview" alt="Vista previa" loading="lazy" decoding="async" />
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <button id="saveBtn" class="btn primary block" type="button">Guardar</button>
+        <button id="cancelEditBtn" class="btn ghost block" type="button">Cancelar edición</button>
+      </div>
+      <p id="savingHint" class="tiny muted" style="margin:10px 0 0;"></p>
+    </section>
+
+    <!-- List -->
+    <section id="listPanel" class="panel hidden" aria-label="Lista de productos">
+      <div class="row between">
+        <h2 class="h2" style="margin:0;">Productos</h2>
+        <span class="muted tiny">Tip: toca un producto para editar.</span>
+      </div>
+
+      <div id="productsList" class="adminList" aria-label="Listado de productos"></div>
+    </section>
+  </main>
+
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+
+  <script type="module" src="./admin.js"></script>
+</body>
+</html>

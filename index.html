@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f8fafc" />
+  <title>Lumina — Tienda</title>
+
+  <!-- Fuente moderna (no bloquea render) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body class="page page-store">
+  <!-- Background (ligero, sin imágenes) -->
+  <div class="aurora" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbarInner">
+      <button id="brandLogo" class="brand" type="button" aria-label="Lumina (mantén presionado para Admin)">
+        <span class="brandMark" aria-hidden="true">✦</span>
+        <span class="brandName">Lumina</span>
+      </button>
+
+      <button id="cartOpenBtn" class="btn chip" type="button" aria-label="Abrir carrito">
+        <span aria-hidden="true">🛒</span>
+        <span class="chipText">Carrito</span>
+        <span id="cartCount" class="pill" aria-label="Cantidad en el carrito">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1 class="h1">Moda & accesorios, rápidos y bonitos.</h1>
+      <p class="sub">Catálogo ultra rápido, mobile-first, optimizado para Android gama media/baja.</p>
+
+      <form id="searchForm" class="searchRow" role="search" aria-label="Buscar productos">
+        <label class="srOnly" for="searchInput">Buscar</label>
+        <input
+          id="searchInput"
+          class="input"
+          type="search"
+          inputmode="search"
+          autocomplete="off"
+          placeholder="Busca por nombre, categoría o descripción…"
+          aria-label="Buscar productos"
+        />
+        <button class="btn primary" type="submit" aria-label="Buscar">Buscar</button>
+      </form>
+
+      <div class="filters">
+        <button id="filtersToggleBtn" class="btn ghost block" type="button" aria-controls="filtersBody" aria-expanded="true">
+          Filtros y orden
+        </button>
+
+        <div id="filtersBody" class="filtersBody">
+          <div class="grid2">
+            <div class="field">
+              <label class="label" for="categorySelect">Categoría</label>
+              <select id="categorySelect" class="select" aria-label="Filtrar por categoría">
+                <option value="">Todas</option>
+                <option value="manillas">Manillas</option>
+                <option value="pulseras">Pulseras</option>
+                <option value="anillos">Anillos</option>
+                <option value="collares">Collares</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label" for="sortSelect">Orden</label>
+              <select id="sortSelect" class="select" aria-label="Ordenar catálogo">
+                <option value="featured">Destacados + recientes</option>
+                <option value="price_asc">Precio (menor → mayor)</option>
+                <option value="price_desc">Precio (mayor → menor)</option>
+                <option value="name_asc">Nombre (A → Z)</option>
+                <option value="name_desc">Nombre (Z → A)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label class="label" for="priceCap">Precio máximo (COP)</label>
+              <input id="priceCap" class="input" inputmode="numeric" placeholder="Ej: 150000" aria-label="Precio máximo" />
+              <p class="hint">Se basa en el precio final “desde”.</p>
+            </div>
+
+            <div class="field">
+              <span class="label">Destacados</span>
+              <label class="check">
+                <input id="featuredOnly" type="checkbox" aria-label="Solo destacados" />
+                <span>Solo destacados</span>
+              </label>
+              <div class="spacer8"></div>
+              <button id="clearFiltersBtn" class="btn subtle block" type="button" aria-label="Limpiar filtros">Limpiar filtros</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="metaRow">
+        <div id="loadingBar" class="loading hidden" role="status" aria-live="polite">Cargando productos…</div>
+        <div id="resultCount" class="muted" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="catalog">
+      <div id="emptyState" class="empty hidden" role="status" aria-live="polite">
+        <div class="emptyCard">
+          <h2 class="h2">No hay resultados</h2>
+          <p class="muted">Prueba con otra búsqueda o limpia los filtros.</p>
+        </div>
+      </div>
+
+      <div id="productsGrid" class="grid" aria-label="Listado de productos"></div>
+    </section>
+  </main>
+
+  <!-- Backdrop -->
+  <div id="modalBackdrop" class="backdrop" aria-hidden="true" hidden></div>
+
+  <!-- Modal (NO se muestra al cargar) -->
+  <section id="productModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+    <div class="modalCard">
+      <div class="modalHeader">
+        <div>
+          <div id="modalBadges" class="badges" aria-label="Etiquetas del producto"></div>
+          <h2 id="modalTitle" class="h2" style="margin:6px 0 0;">Producto</h2>
+        </div>
+        <button id="modalCloseBtn" class="btn icon" type="button" aria-label="Cerrar modal">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="modalMedia">
+          <img id="modalImg" alt="Producto" loading="lazy" decoding="async" />
+        </div>
+
+        <p id="modalDesc" class="modalDesc"></p>
+
+        <div class="grid2">
+          <div class="field">
+            <label class="label" for="sizeSelect">Talla</label>
+            <select id="sizeSelect" class="select" aria-label="Seleccionar talla"></select>
+          </div>
+
+          <div class="field">
+            <label class="label" for="colorSelect">Color</label>
+            <select id="colorSelect" class="select" aria-label="Seleccionar color"></select>
+          </div>
+        </div>
+
+        <div class="priceBox" aria-label="Precio del producto">
+          <div class="row" style="align-items:baseline; gap:10px;">
+            <div id="modalPrice" class="priceMain"></div>
+            <div id="modalOldPrice" class="priceOld hidden"></div>
+            <span id="modalDiscountHint" class="badge discount hidden"></span>
+          </div>
+          <div id="modalFormula" class="muted tiny"></div>
+        </div>
+
+        <div class="modalActions">
+          <button id="addToCartBtn" class="btn primary block" type="button" aria-label="Agregar al carrito">Agregar al carrito</button>
+          <button id="buyNowBtn" class="btn subtle block" type="button" aria-label="Comprar ahora">Comprar ahora</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Drawer backdrop -->
+  <div id="drawerBackdrop" class="backdrop" aria-hidden="true" hidden></div>
+
+  <!-- Cart drawer -->
+  <aside id="cartDrawer" class="drawer" aria-hidden="true" hidden>
+    <div class="drawerHeader">
+      <h2 class="h2" style="margin:0;">Carrito</h2>
+      <button id="cartCloseBtn" class="btn icon" type="button" aria-label="Cerrar carrito">✕</button>
+    </div>
+
+    <div id="cartItems" class="drawerBody" aria-label="Productos en el carrito"></div>
+
+    <div class="drawerFooter">
+      <div class="totals">
+        <div class="row between">
+          <span class="muted">Subtotal</span>
+          <strong id="cartSubtotal"></strong>
+        </div>
+        <div class="row between">
+          <span class="muted">Envío</span>
+          <strong id="cartShipping"></strong>
+        </div>
+        <div class="row between">
+          <span>Total</span>
+          <strong id="cartTotal" class="priceMain"></strong>
+        </div>
+        <p class="tiny muted" style="margin:8px 0 0;">Envío: 12.000 COP · Gratis desde 150.000 COP</p>
+      </div>
+
+      <div class="grid2">
+        <button id="clearCartBtn" class="btn ghost block" type="button" aria-label="Vaciar carrito">Vaciar</button>
+        <button id="checkoutBtn" class="btn primary block" type="button" aria-label="Finalizar compra">Finalizar</button>
+      </div>
+      <p class="tiny muted" style="margin:10px 0 0;">*Compra simulada (por ahora).</p>
+    </div>
+  </aside>
+
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
