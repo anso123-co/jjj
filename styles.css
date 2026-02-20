@@ -749,3 +749,9 @@ body{
   line-height: 1;
 }
 #cartItems .itemRemoveX:active{ transform: translateY(1px); }
+
+.drawerHeaderApp{
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+}
