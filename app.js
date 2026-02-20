@@ -80,8 +80,7 @@ function setupLogoLongPress() {
     t = null;
   };
 
-  const start = (e) => {
-    // evita click fantasma
+  const start = () => {
     clear();
     t = setTimeout(() => {
       clear();
@@ -130,6 +129,8 @@ function calcShipping(subtotal) {
 /** Data */
 let allProducts = []; // with sizes embedded
 let filtered = [];
+
+// categories from Supabase (optional)
 let categories = [];
 let catNameBySlug = new Map();
 
@@ -171,7 +172,7 @@ function hydrateCategorySelect() {
     sel.appendChild(opt);
   }
 
-  sel.value = prev; // intenta conservar
+  sel.value = prev;
 }
 
 const state = {
@@ -200,7 +201,7 @@ async function fetchCatalog() {
 
     const { data: sizes, error: sErr } = await supabase
       .from("product_sizes")
-      .select("id,product_id,label,extra_price")
+      .select("id,product_id,label,extra_price,created_at")
       .order("created_at", { ascending: true });
 
     if (sErr) throw sErr;
@@ -214,7 +215,6 @@ async function fetchCatalog() {
 
     allProducts = (products || []).map(p => ({ ...p, sizes: byProd.get(p.id) || [] }));
 
-    // fill categories select if missing (optional)
     applyFiltersRender();
     renderCart(); // update count
   } catch (e) {
@@ -234,15 +234,14 @@ function applyFiltersRender() {
 
   let items = allProducts.slice();
 
-  // search (name, category, desc)
+  // search (name, category, desc + prettyCategory)
   if (q) {
     items = items.filter(p => {
       const name = (p.name || "").toLowerCase();
       const c = (p.category || "").toLowerCase();
       const d = (p.desc || "").toLowerCase();
-      return name.includes(q) || c.includes(q) || d.includes(q);
-      (p.category || "").toLowerCase().includes(q) ||
-prettyCategory(p.category).toLowerCase().includes(q)
+      const pretty = prettyCategory(p.category).toLowerCase();
+      return name.includes(q) || c.includes(q) || pretty.includes(q) || d.includes(q);
     });
   }
 
@@ -347,7 +346,7 @@ function renderGrid() {
       </div>
       <div class="cardBody">
         <div class="cardBadges">
-          <span class="badge category">${escapeHtml((p.category || "accesorios").toLowerCase())}</span>
+          <span class="badge category">${escapeHtml(prettyCategory(p.category || "accesorios"))}</span>
           ${p.featured ? `<span class="badge featured">Destacado</span>` : ""}
           ${disc > 0 ? `<span class="badge discount">-${disc}%</span>` : ""}
         </div>
@@ -393,7 +392,7 @@ function openModal(productId) {
   $("modalImg").alt = p.name || "Producto";
 
   const badges = [];
-  badges.push(`<span class="badge category">${escapeHtml(p.category || "accesorios")}</span>`);
+  badges.push(`<span class="badge category">${escapeHtml(prettyCategory(p.category || "accesorios"))}</span>`);
   if (p.featured) badges.push(`<span class="badge featured">Destacado</span>`);
   if ((p.discount_percent || 0) > 0) badges.push(`<span class="badge discount">-${p.discount_percent}%</span>`);
   $("modalBadges").innerHTML = badges.join("");
@@ -432,7 +431,7 @@ function openModal(productId) {
 
   updateModalPrice();
 
-  // show (hidden + class for CSS)
+  // show
   lastFocusEl = document.activeElement;
   $("modalBackdrop").hidden = false;
   $("productModal").hidden = false;
@@ -440,7 +439,6 @@ function openModal(productId) {
   $("productModal").classList.add("open");
   $("modalBackdrop").classList.add("open");
 
-  // focus first primary action
   setTimeout(() => $("addToCartBtn")?.focus(), 0);
 }
 
@@ -449,7 +447,6 @@ function closeModal() {
   $("productModal")?.classList.remove("open");
   $("modalBackdrop")?.setAttribute("aria-hidden", "true");
 
-  // hide after a tick (no animation heavy)
   setTimeout(() => {
     if ($("modalBackdrop")) $("modalBackdrop").hidden = true;
     if ($("productModal")) $("productModal").hidden = true;
@@ -502,8 +499,8 @@ function openCart() {
   setTimeout(() => $("cartCloseBtn")?.focus(), 0);
 }
 function closeCart() {
-  $("drawerBackdrop").classList.remove("open");
-  $("cartDrawer").classList.remove("open");
+  $("drawerBackdrop")?.classList.remove("open");
+  $("cartDrawer")?.classList.remove("open");
   $("cartDrawer").setAttribute("aria-hidden", "true");
   $("drawerBackdrop").setAttribute("aria-hidden", "true");
 
@@ -552,6 +549,8 @@ function renderCart() {
     const el = document.createElement("div");
     el.className = "cartItem";
     el.innerHTML = `
+      <button class="itemRemoveX" aria-label="Quitar del carrito">✕</button>
+
       <div class="cartItemTop">
         <div class="cartThumb">
           <img src="${escapeHtml(p?.image_url || fallbackImg())}" alt="${escapeHtml(p?.name || "Producto")}" loading="lazy" decoding="async" />
@@ -568,18 +567,17 @@ function renderCart() {
       <div class="qtyRow">
         <div class="qtyControls" aria-label="Cantidad">
           <button class="btn" type="button" aria-label="Disminuir">-</button>
-          <div class="qty" aria-label="Cantidad actual">${it.qty}</div>
+          <div class="qtyNumber" aria-label="Cantidad actual">${it.qty}</div>
           <button class="btn" type="button" aria-label="Aumentar">+</button>
         </div>
         <div class="linePrice">
           <strong>${fmtCOP.format(line)}</strong>
-          <button class="btn danger" type="button" aria-label="Eliminar">Eliminar</button>
         </div>
       </div>
     `;
 
     const [minusBtn, plusBtn] = el.querySelectorAll(".qtyControls .btn");
-    const delBtn = el.querySelector(".btn.danger");
+    const delBtn = el.querySelector(".itemRemoveX");
 
     minusBtn.addEventListener("click", () => updateCartQty(it, -1));
     plusBtn.addEventListener("click", () => updateCartQty(it, +1));
@@ -760,10 +758,7 @@ function wireEvents() {
     renderCart();
   });
   $("cartCloseBtn").addEventListener("click", closeCart);
-  document.getElementById("cartBackBtn")?.addEventListener("click", () => {
-  // usa tu función existente para cerrar carrito:
-  closeCart();
-});
+  document.getElementById("cartBackBtn")?.addEventListener("click", closeCart);
   $("drawerBackdrop").addEventListener("click", closeCart);
 
   $("clearCartBtn").addEventListener("click", () => {
@@ -813,7 +808,7 @@ function wireEvents() {
 }
 
 /** Boot */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   // Default values
   $("sortSelect").value = "featured";
   $("resultCount").textContent = "";
@@ -824,5 +819,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   wireEvents();
   renderCart();
+  await initCategories();
   fetchCatalog();
 });
