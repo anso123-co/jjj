@@ -30,6 +30,59 @@ function clampInt(v, def = 0) {
   return Number.isFinite(n) ? n : def;
 }
 
+// ===== WhatsApp =====
+const WHATSAPP_NUMBER = "573116279267"; // 57 + 3116279267
+
+function buildWhatsAppMessage() {
+  const cart = loadCart();
+  if (!cart.length) {
+    return "Hola 👋 Vengo desde Lumina. Quiero información de productos.";
+  }
+
+  let subtotal = 0;
+  const lines = [];
+
+  for (const it of cart) {
+    const p = allProducts.find(x => x.id === it.product_id);
+    const size = p?.sizes?.find(s => s.id === it.size_id) || { extra_price: 0, label: "Única" };
+    const { final } = calcFinalPrice(p?.base_price || 0, size.extra_price || 0, p?.discount_percent || 0);
+    const line = final * (it.qty || 1);
+    subtotal += line;
+
+    lines.push(`• ${it.qty}x ${p?.name || "Producto"} (${size.label}, ${it.color}) — ${fmtCOP.format(line)}`);
+  }
+
+  const shipping = calcShipping(subtotal);
+  const total = subtotal + shipping;
+
+  return [
+    "Hola 👋 Quiero hacer este pedido:",
+    ...lines,
+    "",
+    `Subtotal: ${fmtCOP.format(subtotal)}`,
+    `Envío: ${fmtCOP.format(shipping)}`,
+    `Total: ${fmtCOP.format(total)}`,
+  ].join("\n");
+}
+
+function openWhatsAppChat() {
+  const text = encodeURIComponent(buildWhatsAppMessage());
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+// ===== Ir a tienda (como Inicio) =====
+function goToStoreHome() {
+  // cierra overlays si están abiertos
+  const modalOpen = $("productModal") && !$("productModal").hidden && $("productModal").classList.contains("open");
+  const cartOpen = $("cartDrawer") && !$("cartDrawer").hidden && $("cartDrawer").classList.contains("open");
+  if (modalOpen) closeModal();
+  if (cartOpen) closeCart();
+
+  // sube arriba
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function calcFinalPrice(basePrice, extra, discountPercent) {
   const pre = (basePrice || 0) + (extra || 0);
   const disc = Math.max(0, Math.min(100, discountPercent || 0));
