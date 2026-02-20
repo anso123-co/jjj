@@ -10,8 +10,8 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
  *
  * Nota: usar anon key en el front es normal (RLS te protege).
  */
-const SUPABASE_URL = "PEGA_AQUI_TU_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "PEGA_AQUI_TU_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://hguwqejcrypslxbcrdgy.supabase.co";
+const SUPABASE_ANON_KEY ="sb_publishable_Hp1PqdiYBVnptBmgqaxq_w_L7RPfOAB";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
