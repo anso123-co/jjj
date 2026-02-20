@@ -973,3 +973,95 @@ body{
     border-radius: 16px;
   }
 }
+/* =========================================================
+   Bottom nav + FAB menu (+)
+   Pega esto al FINAL del styles.css
+   ========================================================= */
+
+.bottomNav{
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 50;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: rgba(255,255,255,.92);
+  border-top: 1px solid rgba(11,18,32,.10);
+  display: grid;
+  grid-template-columns: 1fr 1fr 72px 1fr 1fr;
+  gap: 10px;
+}
+
+.navBtn{
+  appearance: none;
+  border: 0;
+  background: transparent;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border-radius: 14px;
+  color: rgba(11,18,32,.85);
+}
+.navBtn:active{ transform: translateY(1px); }
+.navBtn .icon{ font-size: 18px; line-height: 1; }
+.navBtn .txt{ font-size: 12px; font-weight: 700; opacity: .9; }
+
+.navFab{
+  border: 0;
+  width: 72px;
+  height: 54px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(59,130,246,.95), rgba(99,102,241,.95));
+  color: #fff;
+  box-shadow: 0 12px 26px rgba(2,6,23,.18);
+  display: grid;
+  place-items: center;
+}
+.navFab .fabPlus{
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 900;
+  transform: translateY(-1px);
+}
+.navFab.isOpen .fabPlus{
+  transform: rotate(45deg) translateY(-1px);
+}
+
+/* Backdrop liviano */
+.fabBackdrop{
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(2,6,23,.18);
+}
+
+/* Menú rápido */
+.fabMenu{
+  position: fixed;
+  right: 12px;
+  bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+  z-index: 70;
+  width: min(240px, calc(100vw - 24px));
+  background: rgba(255,255,255,.98);
+  border: 1px solid rgba(11,18,32,.10);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(2,6,23,.18);
+}
+
+.fabItem{
+  width: 100%;
+  text-align: left;
+  padding: 14px 14px;
+  border: 0;
+  background: transparent;
+  font-weight: 800;
+  color: rgba(11,18,32,.86);
+  border-bottom: 1px solid rgba(11,18,32,.08);
+}
+.fabItem:last-child{ border-bottom: 0; }
+.fabItem:active{ background: rgba(59,130,246,.08); }
+.fabItem.wa{ color: rgba(16,185,129,.95); }
+
+@media (prefers-reduced-motion: reduce){
+  .navBtn:active{ transform: none; }
+}
