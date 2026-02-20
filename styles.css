@@ -139,6 +139,7 @@ body{
 /* SEARCH */
 .searchSection{ display:flex; flex-direction:column; gap: 12px; }
 .searchRow{ margin:0; }
+.appSearch{ }
 
 .searchPill{
   display:flex;
@@ -149,9 +150,6 @@ body{
   background: rgba(255,255,255,.90);
   box-shadow: var(--shadow2);
   padding: 10px 12px;
-
-  /* FIX: que el botón no se salga */
-  overflow:hidden;
 }
 .searchIcon{ opacity:.65; }
 .searchInput{
@@ -163,9 +161,6 @@ body{
   font-weight: 600;
   color: var(--text);
   min-height: 24px;
-
-  /* FIX: clave para que no empuje el botón */
-  min-width:0;
 }
 .searchBtn{
   border:0;
@@ -175,17 +170,8 @@ body{
   cursor:pointer;
   background: rgba(31,123,217,.10);
   color: var(--blue);
-
-  /* FIX */
-  flex: 0 0 auto;
-  height: 40px;
-  white-space: nowrap;
-  margin-left: 6px;
 }
 .searchBtn:focus-visible{ outline:none; box-shadow: var(--focus); }
-@media (max-width: 370px){
-  .searchBtn{ padding: 10px 10px; }
-}
 
 .metaBar{
   display:flex;
@@ -339,7 +325,7 @@ body{
   color: var(--blue);
 }
 
-/* Grid productos (2 col móvil) */
+/* Grid productos (2 col móvil como tu referencia) */
 .grid{
   margin-top: 12px;
   display:grid;
@@ -350,23 +336,15 @@ body{
   .gridApp{ grid-template-columns: 1fr 1fr 1fr; }
 }
 
-/* =========================================================
-   FIX PRINCIPAL: cards SIEMPRE iguales + menos largas
-   ========================================================= */
+/* Cards (tu app.js ya renderiza .card, .cardMedia, etc) */
 .card{
   border-radius: var(--r2);
   border: 1px solid rgba(11,18,32,.08);
   background: var(--card);
   box-shadow: var(--shadow2);
   overflow:hidden;
-
-  /* Igualar altura: layout consistente */
-  display:grid;
-  grid-template-rows: auto 1fr;
-
-  /* Cards compactas */
-  min-height: 320px;        /* controla “desorden” por títulos largos */
-  max-width: 100%;
+  display:flex;
+  flex-direction:column;
 
   content-visibility: auto;
   contain-intrinsic-size: 220px 360px;
@@ -376,31 +354,22 @@ body{
 @media (hover:hover){
   .card:hover{ transform: translateY(-3px); box-shadow: var(--shadow); }
 }
-
-/* Imagen fija */
 .cardMedia{
   aspect-ratio: 4/3;
   background: rgba(31,123,217,.08);
 }
 .cardMedia img{
-  width:100%;
-  height:100%;
+  width:100%; height:100%;
   object-fit: cover;
   display:block;
 }
-
-/* El cuerpo NO debe crecer distinto entre cards */
 .cardBody{
   padding: 12px;
   display:flex;
   flex-direction:column;
   gap: 10px;
-
-  /* clave para alinear botón al final sin estirar */
-  min-height: 0;
 }
 .cardBadges, .badges{ display:flex; flex-wrap:wrap; gap: 8px; }
-
 .badge{
   display:inline-flex;
   padding: 6px 10px;
@@ -426,21 +395,14 @@ body{
   color:#9a4e1c;
 }
 
-/* Título: CLAMP para que no desordene alturas */
 .cardTitle{
   margin:0;
   font-size: 16px;
   line-height: 1.15;
   font-weight: 900;
   letter-spacing: -.2px;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 3;      /* 3 líneas máximo */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
-/* Precio + acción alineados */
 .priceRow{
   display:flex;
   align-items:flex-end;
@@ -458,14 +420,9 @@ body{
   text-decoration: line-through;
   font-weight: 900;
 }
-
-/* Botón al fondo siempre (igualando cards) */
-.cardActions{
-  margin-top: auto;
-}
 .cardActions .btn{ width:100%; }
 
-/* Botones base */
+/* Botones base (para modal y cards) */
 .btn{
   min-height: var(--tap);
   border-radius: 14px;
@@ -588,12 +545,6 @@ body{
   align-items:flex-start;
   justify-content:space-between;
   gap: 10px;
-
-  /* FIX: X siempre visible */
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: rgba(255,255,255,.98);
 }
 .modalBody{
   padding: 12px;
@@ -644,18 +595,6 @@ body{
   align-items:center;
   justify-content:space-between;
 }
-
-/* Barra del carrito: flecha + X visibles y título centrado */
-.drawerHeaderBar{
-  display: grid;
-  grid-template-columns: 44px 1fr 44px;
-  align-items: center;
-  gap: 8px;
-}
-.drawerTitle{
-  text-align: center;
-}
-
 .drawerBody{
   padding: 12px;
   overflow:auto;
@@ -673,16 +612,6 @@ body{
   border: 1px solid rgba(11,18,32,.10);
   background: rgba(255,255,255,.92);
   padding: 10px 12px;
-}
-
-/* =========================================================
-   FIX: iconBtn visible en fondos claros (modal + carrito)
-   ========================================================= */
-.drawerHeader .iconBtn,
-.modalHeader .iconBtn{
-  color: rgba(11,18,32,.92) !important;
-  background: rgba(11,18,32,.05) !important;
-  border: 1px solid rgba(11,18,32,.10) !important;
 }
 
 /* Toasts */
@@ -717,6 +646,7 @@ body{
   *{ scroll-behavior:auto !important; }
   .card, .btn{ transition:none !important; }
 }
+
 
 /* =========================
    FIX CARRITO: imagen mini + orden
@@ -804,7 +734,7 @@ body{
   font-weight: 900;
 }
 
-/* X para quitar el producto (si la agregas en el HTML) */
+/* X para quitar el producto (arriba a la derecha del item) */
 #cartItems .itemRemoveX{
   position: absolute;
   top: 8px;
@@ -820,13 +750,87 @@ body{
 }
 #cartItems .itemRemoveX:active{ transform: translateY(1px); }
 
+.drawerHeaderApp{
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+}
+
+/* FIX buscador: que el botón no se salga */
+.searchPill{
+  overflow: hidden;
+}
+
+.searchInput{
+  min-width: 0; /* clave para que no empuje el botón */
+}
+
+.searchBtn{
+  flex: 0 0 auto;
+  height: 40px;
+  white-space: nowrap;
+  margin-left: 6px;
+}
+@media (max-width: 370px){
+  .searchBtn{ padding: 10px 10px; }
+}
+/* =========================================================
+   FIX: iconBtn visible en fondos claros (modal + carrito)
+   ========================================================= */
+
+/* Barra del carrito: flecha + X visibles y título centrado */
+.drawerHeaderBar{
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawerTitle{
+  text-align: center;
+}
+
+/* En headers blancos (carrito + modal) el iconBtn NO puede ser blanco */
+.drawerHeader .iconBtn,
+.modalHeader .iconBtn{
+  color: rgba(11,18,32,.92) !important;
+  background: rgba(11,18,32,.05) !important;
+  border: 1px solid rgba(11,18,32,.10) !important;
+}
+
+/* Para que la X del modal quede clavada arriba a la derecha y SIEMPRE visible */
+.modalHeader{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(255,255,255,.98);
+}
+
+#modalCloseBtn{
+  position: relative;
+  z-index: 3;
+}
+/* X flotante estilo app, sobre el contenido */
+#modalCloseBtn{
+  position: sticky;
+  top: 10px;
+  margin-left: auto;
+}
+
+
 /* =========================================================
    FIX ADMIN: preview de imagen pequeña y ordenada
-   (tu preview usa id="imagePreview" en tu admin.js)
    ========================================================= */
-#imagePreview{
+
+/* Intenta cubrir varios nombres comunes sin romper nada */
+.previewBox,
+#imagePreview,
+.adminPreview,
+.imagePreview,
+.preview,
+.previewWrap{
   width: 100%;
-  max-width: 360px;       /* bonito en móvil */
+  max-width: 360px;          /* bonito en móvil */
   margin: 8px 0;
   border-radius: 18px;
   border: 1px solid rgba(11,18,32,.10);
@@ -836,23 +840,48 @@ body{
 
   /* tamaño fijo para evitar gigantismo */
   aspect-ratio: 4 / 3;
-  height: auto;
 }
 
-/* En pantallas chicas, un pelín más compacto */
+/* si tu preview está dentro del formulario y quieres más compacto */
 @media (max-width: 430px){
-  #imagePreview{
+  .previewBox,
+  #imagePreview,
+  .adminPreview,
+  .imagePreview,
+  .preview,
+  .previewWrap{
     max-width: 100%;
-    aspect-ratio: 16 / 11;
+    aspect-ratio: 16 / 11;   /* un poco más panorámico */
   }
 }
 
-/* Como tu preview es <img id="imagePreview">, esto lo asegura */
-#imagePreview{
+/* La imagen SIEMPRE se ajusta sin deformarse */
+.previewBox img,
+#imagePreview img,
+.adminPreview img,
+.imagePreview img,
+.preview img,
+.previewWrap img{
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  display:block;
+  display: block;
 }
 
+/* Si tienes placeholder o texto adentro */
+.previewBox .placeholder,
+#imagePreview .placeholder,
+.adminPreview .placeholder,
+.imagePreview .placeholder,
+.preview .placeholder,
+.previewWrap .placeholder{
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: rgba(11,18,32,.55);
+  font-weight: 900;
+}
 /* =========================
    Admin: categorías dinámicas
    ========================= */
@@ -888,318 +917,128 @@ body{
   display:grid;
   place-items:center;
 }
+
 .catMini .x:active{ transform: scale(.98); }
-/* =========================================================
-   FIX ADMIN LIST: imágenes gigantes en la lista de productos
-   Pega esto al FINAL del styles.css
-   ========================================================= */
 
-/* Contenedor general del item (por si no existe) */
-.adminItem{
-  display: grid;
-  grid-template-columns: 92px 1fr auto; /* thumb | texto | acciones */
-  gap: 12px;
-  align-items: center;
-  padding: 12px;
-  border-radius: 18px;
-  border: 1px solid rgba(11,18,32,.10);
-  background: rgba(255,255,255,.96);
-  box-shadow: 0 6px 18px rgba(2,6,23,.08);
-  overflow: hidden; /* evita que algo se salga */
-}
 
-/* El thumb SIEMPRE con tamaño fijo */
-.adminThumb{
-  width: 92px;
-  height: 92px;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 1px solid rgba(11,18,32,.10);
-  background: rgba(31,123,217,.08);
-  flex: none;
-}
 
-/* La imagen NO puede crecer: se recorta bonito */
-.adminThumb img{
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  display: block !important;
-}
+/* ==========================
+   Fixes Lumina (cards, admin thumbs, bottom nav, FAB menu, paginación)
+   ========================== */
 
-/* Texto no debe romper layout */
-.adminMeta{ min-width: 0; }
-.adminMeta .title{
-  margin: 0;
-  font-weight: 900;
-  line-height: 1.15;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
+/* Cards: misma altura / menos “desorden” */
+.gridApp{ align-items: stretch; }
+.cardApp{ height:100%; display:flex; flex-direction:column; }
+.cardMedia{ aspect-ratio: 1 / 1; }
+.cardMedia img{ width:100%; height:100%; object-fit:cover; display:block; }
+.cardTitle{
+  display:-webkit-box;
   -webkit-box-orient: vertical;
-  overflow: hidden;
+  -webkit-line-clamp: 2;
+  overflow:hidden;
+  min-height: calc(16px * 1.15 * 2);
 }
-.adminMeta .sub{
-  margin: 6px 0 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+.cardBadges{ min-height: 32px; }
 
-/* Acciones compactas */
-.adminActions{
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-.adminActions .btn{
-  min-height: 40px;
-  padding: 10px 12px;
-}
-
-/* En móvil que no se descuadre */
-@media (max-width: 420px){
-  .adminItem{
-    grid-template-columns: 78px 1fr;
-    grid-template-rows: auto auto;
-    align-items: start;
-  }
-  .adminActions{
-    grid-column: 1 / -1;
-    justify-content: flex-start;
-  }
-  .adminThumb{
-    width: 78px;
-    height: 78px;
-    border-radius: 16px;
-  }
-}
-/* =========================================================
-   Bottom nav + FAB menu (+)
-   Pega esto al FINAL del styles.css
-   ========================================================= */
-
-.bottomNav{
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  z-index: 50;
-  padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
-  background: rgba(255,255,255,.92);
-  border-top: 1px solid rgba(11,18,32,.10);
-  display: grid;
-  grid-template-columns: 1fr 1fr 72px 1fr 1fr;
-  gap: 10px;
-}
-
-.navBtn{
-  appearance: none;
-  border: 0;
-  background: transparent;
-  display: grid;
-  justify-items: center;
-  gap: 4px;
-  padding: 8px 6px;
+/* Admin list: evita imágenes gigantes en la lista */
+.prodRowThumb{
+  width:56px;
+  height:56px;
+  flex:0 0 56px;
   border-radius: 14px;
-  color: rgba(11,18,32,.85);
+  overflow:hidden;
+  background: #f1f5ff;
 }
-.navBtn:active{ transform: translateY(1px); }
-.navBtn .icon{ font-size: 18px; line-height: 1; }
-.navBtn .txt{ font-size: 12px; font-weight: 700; opacity: .9; }
+.prodRowThumb img{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  display:block;
+}
 
+/* Bottom nav: HTML usa .txt y .navFab */
+.navBtn .txt{ font-size:11px; line-height:1; }
 .navFab{
-  border: 0;
-  width: 72px;
-  height: 54px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(59,130,246,.95), rgba(99,102,241,.95));
-  color: #fff;
-  box-shadow: 0 12px 26px rgba(2,6,23,.18);
-  display: grid;
-  place-items: center;
+  width:52px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  border-radius: 16px;
+  background: linear-gradient(180deg,#1f7bd9,#1764b8);
+  color:#fff;
+  border:0;
+  box-shadow: 0 12px 30px rgba(31,123,217,.28);
+  transform: translateY(-16px);
 }
 .navFab .fabPlus{
-  font-size: 28px;
+  font-size: 26px;
   line-height: 1;
-  font-weight: 900;
-  transform: translateY(-1px);
+  display:block;
+  transition: transform .18s ease;
 }
-.navFab.isOpen .fabPlus{
-  transform: rotate(45deg) translateY(-1px);
-}
+#navFab[aria-expanded="true"] .fabPlus{ transform: rotate(45deg); }
 
-/* Backdrop liviano */
+/* FAB menu + backdrop */
 .fabBackdrop{
-  position: fixed;
-  inset: 0;
+  position:fixed;
+  inset:0;
+  background: rgba(15,23,42,.25);
+  backdrop-filter: blur(2px);
   z-index: 60;
-  background: rgba(2,6,23,.18);
 }
-
-/* Menú rápido */
 .fabMenu{
-  position: fixed;
-  right: 12px;
-  bottom: calc(78px + env(safe-area-inset-bottom, 0px));
-  z-index: 70;
-  width: min(240px, calc(100vw - 24px));
-  background: rgba(255,255,255,.98);
-  border: 1px solid rgba(11,18,32,.10);
+  position:fixed;
+  left:50%;
+  transform: translateX(-50%);
+  bottom: calc(78px + env(safe-area-inset-bottom));
+  width: min(520px, calc(100% - 20px));
+  display:grid;
+  gap: 8px;
+  padding: 10px;
   border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 18px 40px rgba(2,6,23,.18);
-}
-
-.fabItem{
-  width: 100%;
-  text-align: left;
-  padding: 14px 14px;
-  border: 0;
-  background: transparent;
-  font-weight: 800;
-  color: rgba(11,18,32,.86);
-  border-bottom: 1px solid rgba(11,18,32,.08);
-}
-.fabItem:last-child{ border-bottom: 0; }
-.fabItem:active{ background: rgba(59,130,246,.08); }
-.fabItem.wa{ color: rgba(16,185,129,.95); }
-
-@media (prefers-reduced-motion: reduce){
-  .navBtn:active{ transform: none; }
-}
-/* =========================================================
-   FIX: Bottom Nav desbordado / desalineado (mobile)
-   Pega al FINAL del styles.css
-   ========================================================= */
-
-.bottomNav{
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  z-index: 50;
-
-  /* layout */
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 6px;
-
-  padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
   background: rgba(255,255,255,.92);
-  border-top: 1px solid rgba(11,18,32,.10);
-
-  /* IMPORTANT: evita que algo empuje fuera */
-  overflow: hidden;
-  box-sizing: border-box;
+  border: 1px solid rgba(2,6,23,.08);
+  box-shadow: 0 18px 60px rgba(2,6,23,.18);
+  z-index: 61;
 }
-
-.bottomNav .navBtn{
-  flex: 1 1 0;
-  min-width: 0;               /* clave para que no empuje */
-  height: 56px;
-  padding: 8px 6px;
-
-  border: 0;
-  background: transparent;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-
-  border-radius: 14px;
-  color: rgba(11,18,32,.86);
-  box-sizing: border-box;
-}
-
-.bottomNav .navBtn .icon{
-  font-size: 18px;
-  line-height: 1;
-}
-
-.bottomNav .navBtn .txt{
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1.05;
-
-  /* evita que “WhatsApp / Favoritos / Buscar” rompan */
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.bottomNav .navBtn:active{ transform: translateY(1px); }
-
-/* Botón + (FAB) */
-.bottomNav .navFab{
-  flex: 0 0 68px;             /* fijo, no empuja a los lados */
-  width: 68px;
-  height: 68px;
-  border: 0;
-  border-radius: 20px;
-
-  background: linear-gradient(135deg, rgba(59,130,246,.95), rgba(99,102,241,.95));
-  color: #fff;
-  box-shadow: 0 12px 26px rgba(2,6,23,.16);
-
-  display: grid;
-  place-items: center;
-
-  /* que “flote” un poquito sin romper el nav */
-  transform: translateY(-10px);
-}
-
-.bottomNav .navFab .fabPlus{
-  font-size: 34px;
-  line-height: 1;
-  font-weight: 900;
-  transform: translateY(-1px);
-}
-
-.bottomNav .navFab.isOpen .fabPlus{
-  transform: rotate(45deg) translateY(-1px);
-}
-
-/* Menú del + (por si lo tienes) */
-.fabBackdrop{
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  background: rgba(2,6,23,.18);
-}
-
-.fabMenu{
-  position: fixed;
-  right: 12px;
-  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
-  z-index: 70;
-  width: min(240px, calc(100vw - 24px));
-  background: rgba(255,255,255,.98);
-  border: 1px solid rgba(11,18,32,.10);
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 18px 40px rgba(2,6,23,.18);
-}
-
 .fabItem{
-  width: 100%;
-  text-align: left;
-  padding: 14px 14px;
-  border: 0;
-  background: transparent;
-  font-weight: 800;
-  color: rgba(11,18,32,.86);
-  border-bottom: 1px solid rgba(11,18,32,.08);
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(2,6,23,.10);
+  background:#fff;
+  font-weight: 900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
 }
-.fabItem:last-child{ border-bottom: 0; }
+.fabItem.wa{ border-color: rgba(34,197,94,.22); }
 
-@media (max-width: 360px){
-  .bottomNav{ gap: 4px; padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px)); }
-  .bottomNav .navBtn .txt{ font-size: 11px; }
-  .bottomNav .navFab{ flex-basis: 62px; width: 62px; height: 62px; border-radius: 18px; transform: translateY(-8px); }
-  .bottomNav .navFab .fabPlus{ font-size: 32px; }
+/* Empuja el contenido para que el bottom nav no tape el final */
+.page-store .storeMain{ padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+
+/* Paginación: Cargar más + números */
+.pager{ margin: 14px 0 28px; display:grid; gap: 10px; }
+.pagerNumbers{
+  display:flex;
+  gap: 8px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 6px;
 }
-
-@media (prefers-reduced-motion: reduce){
-  .bottomNav .navBtn:active{ transform: none; }
-  .bottomNav .navFab{ transform: translateY(-10px); }
+.pagerNumbers::-webkit-scrollbar{ height:0; }
+.pagerNum{
+  flex:0 0 auto;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(255,255,255,.85);
+  font-weight: 900;
+}
+.pagerNum.isActive{
+  background: linear-gradient(180deg,#1f7bd9,#1764b8);
+  color:#fff;
+  border-color: transparent;
 }
