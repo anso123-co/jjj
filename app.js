@@ -130,6 +130,49 @@ function calcShipping(subtotal) {
 /** Data */
 let allProducts = []; // with sizes embedded
 let filtered = [];
+let categories = [];
+let catNameBySlug = new Map();
+
+function prettyCategory(slug) {
+  const key = String(slug || "").toLowerCase();
+  return catNameBySlug.get(key) || (key ? (key[0].toUpperCase() + key.slice(1)) : "Accesorios");
+}
+
+async function initCategories() {
+  try {
+    const { data, error } = await supabase
+      .from("categories")
+      .select("slug,name,is_active,sort_order")
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+
+    if (error) throw error;
+
+    categories = (data || []).filter(c => c.is_active !== false);
+    catNameBySlug = new Map(categories.map(c => [String(c.slug || "").toLowerCase(), c.name]));
+
+    hydrateCategorySelect();
+  } catch {
+    // Si no existe la tabla o falla, no rompemos: dejamos el select como está.
+  }
+}
+
+function hydrateCategorySelect() {
+  const sel = $("categorySelect");
+  if (!sel) return;
+
+  const prev = sel.value || "";
+  sel.innerHTML = `<option value="">Todas</option>`;
+
+  for (const c of categories) {
+    const opt = document.createElement("option");
+    opt.value = c.slug;
+    opt.textContent = c.name;
+    sel.appendChild(opt);
+  }
+
+  sel.value = prev; // intenta conservar
+}
 
 const state = {
   q: "",
