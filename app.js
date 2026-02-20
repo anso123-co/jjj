@@ -715,6 +715,7 @@ function wireEvents() {
     renderCart();
   });
   $("cartCloseBtn").addEventListener("click", closeCart);
+  $("cartBackBtn")?.addEventListener("click", closeCart);
   $("drawerBackdrop").addEventListener("click", closeCart);
 
   $("clearCartBtn").addEventListener("click", () => {
