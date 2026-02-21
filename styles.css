@@ -1097,3 +1097,133 @@ body{
 
 /* 8) Evita que la bottomNav tape contenido */
 .storeMain{ padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+/* =========================================================
+   FIX FINAL: Títulos en cards + lista Admin ordenada
+   Pega al FINAL del styles.css
+   ========================================================= */
+
+/* ---------- TIENDA: Cards parejas y título estable ---------- */
+.grid.gridApp{
+  align-items: stretch !important;
+}
+
+.grid.gridApp .card{
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Imagen no hace crecer la card */
+.grid.gridApp .cardMedia{
+  aspect-ratio: 3 / 2 !important;
+  overflow: hidden !important;
+}
+
+/* El cuerpo debe poder encoger y reservar espacio */
+.grid.gridApp .cardBody{
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Badges no deben empujar todo */
+.grid.gridApp .cardBadges{
+  min-height: 28px !important; /* reserva 1 línea */
+}
+
+/* ✅ TÍTULO: 2 líneas, con espacio reservado (no desaparece) */
+.grid.gridApp .cardTitle{
+  line-height: 1.15 !important;
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  overflow: hidden !important;
+  word-break: break-word !important;
+  min-height: 2.3em !important;  /* reserva 2 líneas */
+}
+
+/* Botón siempre abajo */
+.grid.gridApp .cardActions{
+  margin-top: auto !important;
+}
+
+/* ---------- ADMIN: lista ordenada y miniaturas fijas ---------- */
+.adminItem,
+.prodRow{
+  display: grid !important;
+  grid-template-columns: 92px 1fr auto !important;  /* thumb | texto | acciones */
+  gap: 12px !important;
+  align-items: center !important;
+  padding: 12px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(11,18,32,.10) !important;
+  background: rgba(255,255,255,.96) !important;
+  box-shadow: 0 6px 18px rgba(2,6,23,.08) !important;
+}
+
+/* Thumb fijo (aquí era donde se “gigantizaba”) */
+.adminThumb{
+  width: 92px !important;
+  height: 92px !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(11,18,32,.10) !important;
+  background: rgba(31,123,217,.08) !important;
+}
+
+.adminThumb img{
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* Texto no rompe layout */
+.adminMeta{
+  min-width: 0 !important;
+}
+
+.adminMeta .title{
+  margin: 0 !important;
+  font-weight: 900 !important;
+  line-height: 1.15 !important;
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  overflow: hidden !important;
+}
+
+.adminMeta .sub{
+  margin: 6px 0 0 !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+/* Acciones compactas y sin desorden */
+.adminActions{
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+}
+
+@media (max-width: 420px){
+  .adminItem,
+  .prodRow{
+    grid-template-columns: 78px 1fr !important;
+    grid-template-rows: auto auto !important;
+    align-items: start !important;
+  }
+  .adminActions{
+    grid-column: 1 / -1 !important;
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+  }
+  .adminThumb{
+    width: 78px !important;
+    height: 78px !important;
+    border-radius: 16px !important;
+  }
+}
