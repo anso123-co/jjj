@@ -1227,3 +1227,108 @@ body{
     border-radius: 16px !important;
   }
 }
+/* =========================================================
+   FIX ADMIN LIST (según tu captura): orden + alineación
+   Pega AL FINAL del styles.css
+   ========================================================= */
+
+#productsList{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Contenedor del item */
+.adminItem{
+  display: grid !important;
+  grid-template-columns: 84px 1fr 108px; /* foto | info | botones */
+  gap: 12px !important;
+  align-items: start !important;         /* 🔥 clave: todo arriba */
+  padding: 12px !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(11,18,32,.10) !important;
+  background: rgba(255,255,255,.95) !important;
+  box-shadow: 0 8px 20px rgba(2,6,23,.08) !important;
+}
+
+/* Thumb fijo */
+.adminThumb{
+  width: 84px !important;
+  height: 84px !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(11,18,32,.10) !important;
+  background: rgba(31,123,217,.08) !important;
+}
+.adminThumb img{
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* Bloque de texto */
+.adminMeta{
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+/* Título: que no se “corra” ni centre raro */
+.adminMeta .title{
+  margin: 0 !important;
+  text-align: left !important;
+  font-weight: 950 !important;
+  font-size: 16px !important;
+  line-height: 1.15 !important;
+
+  /* máximo 2 líneas (para que no desarme el item) */
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  overflow: hidden !important;
+}
+
+/* Badges en fila */
+.adminMeta .sub{
+  margin: 0 !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+/* Botones a la derecha, arriba, sin “bailar” */
+.adminActions{
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+}
+.adminActions .btn{
+  width: 100% !important;
+  min-height: 44px !important;
+  border-radius: 16px !important;
+}
+
+/* Móvil pequeño: botones pasan abajo para que no aprieten el texto */
+@media (max-width: 420px){
+  .adminItem{
+    grid-template-columns: 74px 1fr !important;
+    grid-template-rows: auto auto !important;
+  }
+  .adminThumb{
+    width: 74px !important;
+    height: 74px !important;
+    border-radius: 16px !important;
+  }
+  .adminActions{
+    grid-column: 1 / -1 !important;
+    flex-direction: row !important;
+  }
+  .adminActions .btn{
+    flex: 1 1 0 !important;
+  }
+}
