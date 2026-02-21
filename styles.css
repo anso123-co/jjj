@@ -920,125 +920,180 @@ body{
 
 .catMini .x:active{ transform: scale(.98); }
 
+/* =========================================================
+   FIXES (2026-02-20) — Lumina alignment + FAB + Admin thumbs
+   Pegar al FINAL del archivo styles.css
+   ========================================================= */
 
+/* 1) Respeta hidden SIEMPRE (evita menú + botones "afuera") */
+[hidden] { display: none !important; }
 
-/* ==========================
-   Fixes Lumina (cards, admin thumbs, bottom nav, FAB menu, paginación)
-   ========================== */
-
-/* Cards: misma altura / menos “desorden” */
-.gridApp{ align-items: stretch; }
-.cardApp{ height:100%; display:flex; flex-direction:column; }
-.cardMedia{ aspect-ratio: 1 / 1; }
-.cardMedia img{ width:100%; height:100%; object-fit:cover; display:block; }
-.cardTitle{
-  display:-webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow:hidden;
-  min-height: calc(16px * 1.15 * 2);
+/* 2) Bottom nav labels + FAB (botón + y menú rápido) */
+.navBtn{
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
-.cardBadges{ min-height: 32px; }
-
-/* Admin list: evita imágenes gigantes en la lista */
-.prodRowThumb{
-  width:56px;
-  height:56px;
-  flex:0 0 56px;
-  border-radius: 14px;
-  overflow:hidden;
-  background: #f1f5ff;
-}
-.prodRowThumb img{
-  width:100%;
-  height:100%;
-  object-fit: cover;
-  display:block;
+.navBtn .icon{ font-size: 18px; line-height: 1; }
+.navBtn .txt{
+  font-size: 11px;
+  line-height: 1;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: .9;
 }
 
-/* Bottom nav: HTML usa .txt y .navFab */
-.navBtn .txt{ font-size:11px; line-height:1; }
+/* FAB (+) centrado y bonito */
 .navFab{
-  width:52px;
-  height:52px;
-  display:grid;
-  place-items:center;
-  border-radius: 16px;
-  background: linear-gradient(180deg,#1f7bd9,#1764b8);
-  color:#fff;
-  border:0;
-  box-shadow: 0 12px 30px rgba(31,123,217,.28);
-  transform: translateY(-16px);
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  transform: translateY(-18px);
+  background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(31,123,217,.95));
+  color: white;
+  box-shadow: 0 16px 40px rgba(2,6,23,.18), 0 6px 16px rgba(2,6,23,.12);
+  border: 1px solid rgba(255,255,255,.35);
 }
 .navFab .fabPlus{
-  font-size: 26px;
+  font-size: 28px;
   line-height: 1;
-  display:block;
-  transition: transform .18s ease;
+  font-weight: 800;
+  transform: translateY(-1px);
 }
-#navFab[aria-expanded="true"] .fabPlus{ transform: rotate(45deg); }
 
-/* FAB menu + backdrop */
+/* Backdrop + menú del FAB */
 .fabBackdrop{
-  position:fixed;
-  inset:0;
-  background: rgba(15,23,42,.25);
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(2,6,23,.28);
   backdrop-filter: blur(2px);
-  z-index: 60;
 }
 .fabMenu{
-  position:fixed;
-  left:50%;
-  transform: translateX(-50%);
-  bottom: calc(78px + env(safe-area-inset-bottom));
-  width: min(520px, calc(100% - 20px));
-  display:grid;
-  gap: 8px;
-  padding: 10px;
-  border-radius: 18px;
+  position: fixed;
+  right: 12px;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  z-index: 80;
+  width: min(240px, calc(100vw - 24px));
+  padding: 12px;
+  border-radius: 16px;
   background: rgba(255,255,255,.92);
-  border: 1px solid rgba(2,6,23,.08);
-  box-shadow: 0 18px 60px rgba(2,6,23,.18);
-  z-index: 61;
+  border: 1px solid rgba(15,23,42,.12);
+  box-shadow: 0 18px 50px rgba(2,6,23,.20);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  /* cerrado por defecto (se abre con .open desde JS) */
+  opacity: 0;
+  transform: translateY(10px) scale(.98);
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.fabMenu.open{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
 }
 .fabItem{
-  height: 44px;
-  border-radius: 14px;
-  border: 1px solid rgba(2,6,23,.10);
-  background:#fff;
-  font-weight: 900;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
   gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(248,250,252,.8);
+  font-weight: 700;
 }
-.fabItem.wa{ border-color: rgba(34,197,94,.22); }
+.fabItem:active{ transform: translateY(1px); }
+.fabItem.wa{
+  border-color: rgba(16,185,129,.25);
+  background: rgba(16,185,129,.08);
+}
 
-/* Empuja el contenido para que el bottom nav no tape el final */
-.page-store .storeMain{ padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+/* 3) Search pill: evita que el botón "Buscar" se salga */
+.searchPill{ overflow: hidden; align-items: center; }
+.searchBtn{
+  flex: 0 0 auto;
+  white-space: nowrap;
+  min-height: 38px;
+  padding: 10px 12px;
+}
 
-/* Paginación: Cargar más + números */
-.pager{ margin: 14px 0 28px; display:grid; gap: 10px; }
-.pagerNumbers{
-  display:flex;
+/* 4) Cards: misma altura/ancho, menos "largas", todo alineado */
+.gridApp{ align-items: stretch; }
+.card{ height: 100%; display: flex; flex-direction: column; }
+.cardMedia{ aspect-ratio: 3 / 2; overflow: hidden; }
+.cardMedia img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+.cardBody{ flex: 1 1 auto; display: flex; flex-direction: column; gap: 10px; }
+.cardTitle{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 2.6em;
+}
+.cardActions{ margin-top: auto; }
+
+/* 5) Paginación (botones 1 2 3...) */
+.pager{
+  display: flex;
   gap: 8px;
-  overflow-x:auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 14px 0 26px;
 }
-.pagerNumbers::-webkit-scrollbar{ height:0; }
-.pagerNum{
-  flex:0 0 auto;
-  min-width: 40px;
-  height: 40px;
+.pageBtn{
+  min-width: 38px;
+  height: 38px;
   padding: 0 12px;
   border-radius: 999px;
-  border: 1px solid rgba(2,6,23,.10);
+  border: 1px solid rgba(15,23,42,.12);
   background: rgba(255,255,255,.85);
-  font-weight: 900;
+  font-weight: 800;
 }
-.pagerNum.isActive{
-  background: linear-gradient(180deg,#1f7bd9,#1764b8);
-  color:#fff;
-  border-color: transparent;
+.pageBtn.isActive{
+  border-color: rgba(124,58,237,.45);
+  background: rgba(124,58,237,.12);
 }
+.pageBtn:disabled{ opacity: .45; }
+
+/* 6) Admin: miniaturas NO gigantes (lista de productos) */
+.adminList .adminItem,
+.prodRow{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.adminThumb,
+.prodRowThumb{
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  overflow: hidden;
+  flex: 0 0 auto;
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(248,250,252,.9);
+}
+.adminThumb img,
+.prodRowThumb img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 7) Admin: preview un poco más pequeño para móvil */
+#imagePreview{ max-width: 260px; width: 100%; height: auto; }
+
+/* 8) Evita que la bottomNav tape contenido */
+.storeMain{ padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
